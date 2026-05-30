@@ -1,38 +1,111 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { requireRole } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
-import { Compass, Briefcase, Lightbulb, TrendingUp, ArrowRight } from "lucide-react";
+import { useState } from "react";
+import { Compass, Briefcase, Lightbulb, TrendingUp, ArrowRight, Send } from "lucide-react";
 import { AppLayout } from "@/layouts/AppLayout";
-import { PageHeader, Badge } from "@/components/ui-kit";
+import { PageHeader, Badge, Skeleton } from "@/components/ui-kit";
+import { useApi } from "@/hooks/useApi";
+import { getProfile } from "@/services/api";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/career")({
   beforeLoad: requireRole("student"),
-  head: () => ({ meta: [{ title: "Career Guidance — Intellipath" }] }),
+  head: () => ({ meta: [{ title: "Career Guidance — Ewebar" }] }),
   component: () => <AppLayout><Career /></AppLayout>,
 });
 
-const paths = [
-  { title: "AI/ML Engineer", match: 92, demand: "High", salary: "₦8M – ₦24M", icon: Lightbulb, skills: ["Python", "Math", "Statistics"] },
-  { title: "Software Engineer", match: 88, demand: "Very High", salary: "₦6M – ₦18M", icon: Briefcase, skills: ["JS/TS", "Algorithms", "System Design"] },
-  { title: "Data Scientist", match: 84, demand: "High", salary: "₦7M – ₦20M", icon: TrendingUp, skills: ["SQL", "Python", "Stats"] },
-  { title: "Product Designer", match: 76, demand: "Growing", salary: "₦5M – ₦15M", icon: Compass, skills: ["Figma", "Research", "Empathy"] },
+// Career paths are general Nigerian tech/professional landscape data — not "fake user data"
+const careerPaths = [
+  { title: "AI/ML Engineer", demand: "High", salary: "₦8M – ₦24M", icon: Lightbulb, skills: ["Python", "Math", "Statistics"], field: "Technology" },
+  { title: "Software Engineer", demand: "Very High", salary: "₦6M – ₦18M", icon: Briefcase, skills: ["JS/TS", "Algorithms", "System Design"], field: "Technology" },
+  { title: "Data Scientist", demand: "High", salary: "₦7M – ₦20M", icon: TrendingUp, skills: ["SQL", "Python", "Stats"], field: "Technology" },
+  { title: "Product Designer", demand: "Growing", salary: "₦5M – ₦15M", icon: Compass, skills: ["Figma", "Research", "Empathy"], field: "Design" },
 ];
 
 function Career() {
+  const { user } = useAuth();
+  const { data: profile, loading: profileLoading } = useApi(getProfile);
+  const [interest, setInterest] = useState("");
+  const [guidance, setGuidance] = useState<string | null>(null);
+  const [asking, setAsking] = useState(false);
+
+  const firstName = user?.name?.split(" ")[0] ?? "there";
+
+  // Compute a basic match score for each path based on user interests
+  const withMatch = careerPaths.map((p) => {
+    if (!profile?.interests || profile.interests.length === 0) return { ...p, match: null };
+    const interestKeywords = profile.interests.map((i: string) => i.toLowerCase());
+    const pathKeywords = [...p.skills, p.title, p.field].map((k: string) => k.toLowerCase());
+    const matches = interestKeywords.filter((k: string) => pathKeywords.some((pk: string) => pk.includes(k) || k.includes(pk)));
+    const matchPct = Math.min(95, 50 + matches.length * 15 + (profile.jambScore > 250 ? 10 : 0));
+    return { ...p, match: matches.length > 0 ? matchPct : 55 };
+  }).sort((a, b) => (b.match ?? 0) - (a.match ?? 0));
+
+  const topMatch = withMatch[0];
+
+  const handleAskAI = async () => {
+    if (!interest.trim()) return;
+    setAsking(true);
+    setGuidance(null);
+    try {
+      const token = localStorage.getItem("Ewebar.token");
+      const res = await fetch("http://localhost:5001/api/ai/career-guidance", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ interest: interest.trim() }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.message || "AI request failed");
+      const content = json.data?.content || json.data || "No guidance available.";
+      setGuidance(typeof content === "string" ? content : JSON.stringify(content));
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to get AI guidance");
+    } finally {
+      setAsking(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <PageHeader title="Career guidance" subtitle="AI-mapped career paths based on your strengths." />
+      <PageHeader title="Career guidance" subtitle="AI-mapped career paths based on your profile." />
+
+      {/* Hero banner - dynamic based on real profile */}
       <div className="overflow-hidden rounded-3xl bg-gradient-hero p-8">
-        <h2 className="font-display text-2xl font-bold">Your top career match: AI/ML Engineer</h2>
-        <p className="mt-2 max-w-xl text-muted-foreground">Strong fit based on your math results, problem-solving aptitude, and stated interest in AI.</p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          <Badge tone="primary">High Demand</Badge>
-          <Badge tone="success">92% Match</Badge>
-          <Badge tone="warning">Top 10 in Africa</Badge>
-        </div>
+        {profileLoading ? (
+          <Skeleton className="h-16 w-full" />
+        ) : (
+          <>
+            <h2 className="font-display text-2xl font-bold">
+              {topMatch.match && topMatch.match > 60
+                ? `Hi ${firstName} — your top career match: ${topMatch.title}`
+                : `Hi ${firstName} — explore career paths in Nigeria's tech ecosystem`}
+            </h2>
+            <p className="mt-2 max-w-xl text-muted-foreground">
+              {profile?.interests && profile.interests.length > 0
+                ? `Based on your interests in ${profile.interests.slice(0, 3).join(", ")}.`
+                : "Complete your profile to get personalized career matches."}
+            </p>
+            {topMatch.match && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Badge tone="primary">High Demand</Badge>
+                <Badge tone="success">{topMatch.match}% Match</Badge>
+                <Badge tone="warning">Top Field in Africa</Badge>
+              </div>
+            )}
+          </>
+        )}
       </div>
+
+      {/* Career path cards */}
       <div className="grid gap-4 md:grid-cols-2">
-        {paths.map((p, i) => (
+        {withMatch.map((p, i) => (
           <motion.div
             key={p.title}
             initial={{ opacity: 0, y: 10 }}
@@ -45,7 +118,9 @@ function Career() {
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <p.icon className="h-5 w-5" />
               </div>
-              <span className="font-display text-2xl font-bold gradient-text">{p.match}%</span>
+              {p.match !== null && (
+                <span className="font-display text-2xl font-bold gradient-text">{p.match}%</span>
+              )}
             </div>
             <h3 className="mt-3 font-display text-lg font-semibold">{p.title}</h3>
             <div className="mt-2 flex flex-wrap gap-1.5">
@@ -55,11 +130,48 @@ function Career() {
               <div><p className="text-xs text-muted-foreground">Demand</p><p className="font-medium">{p.demand}</p></div>
               <div><p className="text-xs text-muted-foreground">Salary</p><p className="font-medium">{p.salary}</p></div>
             </div>
-            <button className="mt-4 flex items-center gap-1 text-sm font-medium text-primary hover:underline">
-              Explore path <ArrowRight className="h-3 w-3" />
+            <button
+              onClick={() => setInterest(p.title)}
+              className="mt-4 flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+            >
+              Ask AI about this path <ArrowRight className="h-3 w-3" />
             </button>
           </motion.div>
         ))}
+      </div>
+
+      {/* AI Career Guidance section */}
+      <div className="rounded-2xl border bg-card p-6 shadow-soft">
+        <h3 className="mb-3 font-display text-lg font-semibold">Ask the AI about any career</h3>
+        <p className="mb-4 text-sm text-muted-foreground">
+          Get specific guidance on career paths, required courses, and top universities in Nigeria.
+        </p>
+        <div className="flex gap-2">
+          <Input
+            value={interest}
+            onChange={(e) => setInterest(e.target.value)}
+            placeholder="e.g. Medicine, Cybersecurity, Finance..."
+            onKeyDown={(e) => e.key === "Enter" && handleAskAI()}
+          />
+          <Button onClick={handleAskAI} disabled={asking || !interest.trim()} className="bg-gradient-primary gap-2">
+            {asking ? "Asking..." : <><Send className="h-4 w-4" /> Ask AI</>}
+          </Button>
+        </div>
+        {guidance && (
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-4 rounded-xl border bg-muted/40 p-4 text-sm leading-relaxed whitespace-pre-wrap"
+          >
+            {guidance.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
+              part.startsWith("**") && part.endsWith("**") ? (
+                <strong key={i} className="font-semibold">{part.slice(2, -2)}</strong>
+              ) : (
+                <span key={i}>{part}</span>
+              )
+            )}
+          </motion.div>
+        )}
       </div>
     </div>
   );

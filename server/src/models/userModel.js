@@ -33,6 +33,46 @@ const userSchema = new mongoose.Schema(
     },
     interests: [String],
     preferredLocation: String,
+    waecAggregate: {
+      type: String,
+      default: "",
+    },
+    subjects: [
+      {
+        name: String,
+        grade: String,
+      },
+    ],
+    jambSubjects: [
+      {
+        name: String,
+        score: Number,
+      },
+    ],
+    olevelSittings: [
+      {
+        sittingNumber: Number,
+        examType: String, // WAEC, NECO, NABTEB, GCE
+        examYear: String,
+        sittingType: String, // May/June, Nov/Dec, Internal, External
+        candidateFullName: String,
+        dateOfBirth: String,
+        gender: String,
+        examNumber: String,
+        candidateNumber: String,
+        centerNumber: String,
+        schoolNumber: String,
+        registrationNumber: String,
+        serialNumber: String,
+        pin: String,
+        subjects: [
+          {
+            name: String,
+            grade: String,
+          },
+        ],
+      },
+    ],
     uploadedDocuments: [
       {
         name: String,
@@ -49,10 +89,9 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-// Encrypt password using bcrypt
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function () {
   if (!this.isModified("password")) {
-    next();
+    return;
   }
 
   const salt = await bcrypt.genSalt(10);

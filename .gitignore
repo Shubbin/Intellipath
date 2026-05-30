@@ -11,3 +11,8 @@ usecase.png
 **/node_modules/
 **/dist/
 **/.env
+
+# Ignore temp scratch files and server logs
+server/scratch/
+server/logs/
+

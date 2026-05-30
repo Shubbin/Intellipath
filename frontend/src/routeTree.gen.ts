@@ -29,6 +29,7 @@ import { Route as CoursesIdRouteImport } from './routes/courses.$id'
 import { Route as AdminUniversitiesRouteImport } from './routes/admin.universities'
 import { Route as AdminScholarshipsRouteImport } from './routes/admin.scholarships'
 import { Route as AdminCoursesRouteImport } from './routes/admin.courses'
+import { Route as AdminApplicationsRouteImport } from './routes/admin.applications'
 import { Route as AdminAnalyticsRouteImport } from './routes/admin.analytics'
 
 const UniversitiesRoute = UniversitiesRouteImport.update({
@@ -131,6 +132,11 @@ const AdminCoursesRoute = AdminCoursesRouteImport.update({
   path: '/admin/courses',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminApplicationsRoute = AdminApplicationsRouteImport.update({
+  id: '/admin/applications',
+  path: '/admin/applications',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminAnalyticsRoute = AdminAnalyticsRouteImport.update({
   id: '/admin/analytics',
   path: '/admin/analytics',
@@ -153,6 +159,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/universities': typeof UniversitiesRouteWithChildren
   '/admin/analytics': typeof AdminAnalyticsRoute
+  '/admin/applications': typeof AdminApplicationsRoute
   '/admin/courses': typeof AdminCoursesRoute
   '/admin/scholarships': typeof AdminScholarshipsRoute
   '/admin/universities': typeof AdminUniversitiesRoute
@@ -176,6 +183,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/universities': typeof UniversitiesRouteWithChildren
   '/admin/analytics': typeof AdminAnalyticsRoute
+  '/admin/applications': typeof AdminApplicationsRoute
   '/admin/courses': typeof AdminCoursesRoute
   '/admin/scholarships': typeof AdminScholarshipsRoute
   '/admin/universities': typeof AdminUniversitiesRoute
@@ -200,6 +208,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/universities': typeof UniversitiesRouteWithChildren
   '/admin/analytics': typeof AdminAnalyticsRoute
+  '/admin/applications': typeof AdminApplicationsRoute
   '/admin/courses': typeof AdminCoursesRoute
   '/admin/scholarships': typeof AdminScholarshipsRoute
   '/admin/universities': typeof AdminUniversitiesRoute
@@ -225,6 +234,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/universities'
     | '/admin/analytics'
+    | '/admin/applications'
     | '/admin/courses'
     | '/admin/scholarships'
     | '/admin/universities'
@@ -248,6 +258,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/universities'
     | '/admin/analytics'
+    | '/admin/applications'
     | '/admin/courses'
     | '/admin/scholarships'
     | '/admin/universities'
@@ -271,6 +282,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/universities'
     | '/admin/analytics'
+    | '/admin/applications'
     | '/admin/courses'
     | '/admin/scholarships'
     | '/admin/universities'
@@ -295,6 +307,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   UniversitiesRoute: typeof UniversitiesRouteWithChildren
   AdminAnalyticsRoute: typeof AdminAnalyticsRoute
+  AdminApplicationsRoute: typeof AdminApplicationsRoute
   AdminCoursesRoute: typeof AdminCoursesRoute
   AdminScholarshipsRoute: typeof AdminScholarshipsRoute
   AdminUniversitiesRoute: typeof AdminUniversitiesRoute
@@ -444,6 +457,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCoursesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/applications': {
+      id: '/admin/applications'
+      path: '/admin/applications'
+      fullPath: '/admin/applications'
+      preLoaderRoute: typeof AdminApplicationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/analytics': {
       id: '/admin/analytics'
       path: '/admin/analytics'
@@ -482,6 +502,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   UniversitiesRoute: UniversitiesRouteWithChildren,
   AdminAnalyticsRoute: AdminAnalyticsRoute,
+  AdminApplicationsRoute: AdminApplicationsRoute,
   AdminCoursesRoute: AdminCoursesRoute,
   AdminScholarshipsRoute: AdminScholarshipsRoute,
   AdminUniversitiesRoute: AdminUniversitiesRoute,

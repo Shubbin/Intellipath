@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { requireRole } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
@@ -5,19 +6,22 @@ import { useState } from "react";
 import { ChevronDown, Search, Star } from "lucide-react";
 import { AppLayout } from "@/layouts/AppLayout";
 import { PageHeader, Badge, Skeleton } from "@/components/ui-kit";
-import { useApi } from "@/hooks/useApi";
 import { getRecommendations } from "@/services/api";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/recommendations")({
   beforeLoad: requireRole("student"),
-  head: () => ({ meta: [{ title: "Recommendations | Intellipath" }] }),
+  head: () => ({ meta: [{ title: "Recommendations | Ewebar" }] }),
   component: () => <AppLayout><Recommendations /></AppLayout>,
 });
 
 function Recommendations() {
-  const { data, loading } = useApi(getRecommendations);
+  const { data, isLoading: loading } = useQuery({
+    queryKey: ["recommendations"],
+    queryFn: getRecommendations,
+    staleTime: 5 * 60 * 1000, // 5 minutes cache lifetime
+  });
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<"all" | "high">("all");
   const [openId, setOpenId] = useState<string | null>(null);
@@ -90,11 +94,19 @@ function Recommendations() {
               </motion.p>
             )}
             <div className="mt-4 flex gap-2">
-              <Link to="/universities/$id" params={{ id: r.universityId }} className="flex-1">
-                <Button variant="outline" className="w-full">View university</Button>
+              <Link
+                to="/universities/$id"
+                params={{ id: r.universityId }}
+                className="flex-1 inline-flex items-center justify-center rounded-xl border border-input bg-background hover:bg-accent hover:text-accent-foreground text-xs font-semibold h-9 px-3 transition-all text-center"
+              >
+                View university
               </Link>
-              <Link to="/courses/$id" params={{ id: r.courseId }} className="flex-1">
-                <Button className="w-full bg-gradient-primary">View course</Button>
+              <Link
+                to="/courses/$id"
+                params={{ id: r.courseId }}
+                className="flex-1 inline-flex items-center justify-center rounded-xl bg-gradient-primary text-xs font-semibold text-primary-foreground h-9 px-3 shadow-soft hover:shadow-elegant transition-all text-center"
+              >
+                View course
               </Link>
             </div>
           </motion.div>

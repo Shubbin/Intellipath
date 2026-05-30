@@ -1,18 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { requireRole } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { Send, GraduationCap, RefreshCcw, User as UserIcon, Download, Copy, History } from "lucide-react";
+import { Send, GraduationCap, RefreshCcw, User as UserIcon, Download, Copy, Mic } from "lucide-react";
 import { toast } from "sonner";
 import { AppLayout } from "@/layouts/AppLayout";
 import { PageHeader } from "@/components/ui-kit";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { mockChatHistory } from "@/utils/mockData";
+import { chatWithAssistant } from "@/services/api";
 
 export const Route = createFileRoute("/assistant")({
   beforeLoad: requireRole("student"),
-  head: () => ({ meta: [{ title: "Assistant | Intellipath" }] }),
+  head: () => ({ meta: [{ title: "Assistant | Ewebar" }] }),
   component: () => <AppLayout><Assistant /></AppLayout>,
 });
 
@@ -20,57 +21,89 @@ type Msg = { id: string; role: "user" | "assistant"; content: string; ts: number
 
 const STARTER_SUGGESTIONS = [
   "Best CS schools for me?",
-  "Scholarships I qualify for",
   "How can I improve my JAMB score?",
   "Career paths in AI",
   "Compare UNILAG vs Covenant",
+  "What courses match my profile?",
 ];
-
-// Mock "smart" replies — keyword matched, structured like a real LLM response.
-function mockReply(message: string): string {
-  const m = message.toLowerCase();
-  if (/scholar/.test(m)) {
-    return [
-      "Based on your profile, here are 3 scholarships you qualify for:",
-      "",
-      "• **MTN Foundation Scholarship** : ₦600k, deadline Aug 15",
-      "• **NNPC/Total National Merit** : ₦800k, deadline Jul 20",
-      "• **Google Africa Developer** : Free training, deadline May 25",
-      "",
-      "Want me to draft your applications?",
-    ].join("\n");
-  }
-  if (/jamb|score|improve/.test(m)) {
-    return "Your JAMB score (268) is already in the top 12%. To push higher, focus on **English comprehension** (your weakest area) and practice 2 timed mock tests per week. I can build a 6-week study plan.";
-  }
-  if (/career|ai|future|path/.test(m)) {
-    return "AI careers with strongest growth in Nigeria right now:\n\n1. **ML Engineer** : ₦8M–₦25M/yr\n2. **Data Scientist** : ₦6M–₦18M/yr\n3. **AI Product Manager** : ₦10M–₦22M/yr\n\nGiven your CS interest, the ML Engineer path aligns with 94% of your skill profile.";
-  }
-  if (/unilag|covenant|compare/.test(m)) {
-    return "**UNILAG vs Covenant | quick compare:**\n\n• UNILAG: 94% match, ₦120k/yr, larger cohort, stronger research\n• Covenant: 88% match, ₦950k/yr, better mentorship, faster placement\n\nFor your profile, UNILAG edges out on cost-to-outcome. Covenant wins on industry network.";
-  }
-  if (/best|cs|school|university/.test(m)) {
-    return "Your top 3 matches based on your JAMB score and interests:\n\n1. **University of Lagos : CS** (94% match)\n2. **Covenant University : CS** (88% match)\n3. **OAU : Mech. Engineering** (82% match)\n\nWant a deeper breakdown of any of these?";
-  }
-  return `Great question! Based on your profile (JAMB 268, CS interest), here's a focused take on "${message.slice(0, 60)}": I'd recommend exploring the **Recommendations** tab where I've matched 4 strong-fit programs. Want me to dive deeper into any specific area?`;
-}
 
 function uid() {
   return Math.random().toString(36).slice(2, 10);
 }
 
 function Assistant() {
+  const { user } = useAuth();
+  const firstName = user?.name?.split(" ")[0] ?? "there";
+
   const [messages, setMessages] = useState<Msg[]>([
     {
       id: uid(),
       role: "assistant",
-      content: "Hi Ada. I'm your intelligent admission counselor. Ask me about programs, scholarships, JAMB strategy, or careers. I learn from your profile in real time.",
+      content: `Hi ${firstName}! I'm your intelligent admission counselor. Ask me about programs, JAMB strategy, scholarships, or career paths.`,
       ts: Date.now(),
     },
   ]);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
+
+  const [listening, setListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
+  useEffect(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const rec = new SpeechRecognition();
+      rec.continuous = false;
+      rec.interimResults = false;
+      rec.lang = "en-NG";
+      
+      rec.onstart = () => {
+        setListening(true);
+        toast.info("Listening... Speak now!");
+      };
+      
+      rec.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        if (transcript) {
+          setInput((prev) => prev ? `${prev} ${transcript}` : transcript);
+          toast.success("Voice capture successful!");
+        }
+      };
+      
+      rec.onerror = (event: any) => {
+        console.error("Speech Error:", event.error);
+        if (event.error === "not-allowed") {
+          toast.error("Microphone access denied.");
+        } else {
+          toast.error("Speech error. Please try again.");
+        }
+        setListening(false);
+      };
+      
+      rec.onend = () => {
+        setListening(false);
+      };
+      
+      recognitionRef.current = rec;
+    }
+  }, []);
+
+  const toggleListening = () => {
+    if (!recognitionRef.current) {
+      toast.error("Speech recognition is not supported in this browser. Please use Chrome, Edge, or Safari.");
+      return;
+    }
+    if (listening) {
+      recognitionRef.current.stop();
+    } else {
+      try {
+        recognitionRef.current.start();
+      } catch (err) {
+        console.warn(err);
+      }
+    }
+  };
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -84,13 +117,23 @@ function Assistant() {
     setInput("");
     setTyping(true);
 
-    // Simulate streaming-like delay (variable based on message length)
-    const delay = 700 + Math.min(content.length * 25, 1500);
-    await new Promise((r) => setTimeout(r, delay));
-
-    const reply: Msg = { id: uid(), role: "assistant", content: mockReply(content), ts: Date.now() };
-    setMessages((m) => [...m, reply]);
-    setTyping(false);
+    try {
+      // Build history (exclude the last user message we just added)
+      const history = messages.map((m) => ({ role: m.role, content: m.content }));
+      const reply = await chatWithAssistant(history, content);
+      const replyMsg: Msg = { id: uid(), role: "assistant", content: reply.content, ts: Date.now() };
+      setMessages((m) => [...m, replyMsg]);
+    } catch (err) {
+      const errorMsg: Msg = {
+        id: uid(),
+        role: "assistant",
+        content: "Sorry, I couldn't connect to the assistant right now. Please try again in a moment.",
+        ts: Date.now(),
+      };
+      setMessages((m) => [...m, errorMsg]);
+    } finally {
+      setTyping(false);
+    }
   };
 
   const reset = () => {
@@ -103,13 +146,6 @@ function Assistant() {
       },
     ]);
     toast.success("Started a new chat");
-  };
-
-  const loadMockHistory = () => {
-    setMessages(
-      mockChatHistory.map((m) => ({ id: uid(), role: m.role, content: m.content, ts: Date.now() }))
-    );
-    toast.success("Loaded mock conversation");
   };
 
   const transcriptText = () =>
@@ -131,7 +167,7 @@ function Assistant() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `Intellipath-chat-${new Date().toISOString().slice(0, 10)}.txt`;
+    a.download = `Ewebar-chat-${new Date().toISOString().slice(0, 10)}.txt`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -139,22 +175,21 @@ function Assistant() {
     toast.success("Transcript exported");
   };
 
-  // Contextual follow-ups change based on last assistant message
+  // Context-aware follow-up suggestions
   const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
   const dynamicSuggestions = lastAssistant?.content.toLowerCase().includes("scholarship")
-    ? ["Draft my MTN application", "Show all eligible scholarships", "Deadline reminders"]
+    ? ["Tell me more about MTN scholarship", "Show eligibility requirements", "When is the deadline?"]
     : lastAssistant?.content.toLowerCase().includes("unilag")
-    ? ["Tuition breakdown", "Hostel options", "Course curriculum"]
+    ? ["What courses does UNILAG offer?", "Tuition fees breakdown", "Hostel options"]
+    : lastAssistant?.content.toLowerCase().includes("jamb")
+    ? ["What subjects should I focus on?", "Best JAMB prep resources", "What score do I need?"]
     : STARTER_SUGGESTIONS;
 
   return (
     <div className="flex h-[calc(100vh-9rem)] flex-col">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <PageHeader title="Assistant" subtitle="Your 24/7 admission counselor." />
+        <PageHeader title="Assistant" subtitle="Your 24/7 AI admission counselor." />
         <div className="mb-6 flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" onClick={loadMockHistory} className="gap-2">
-            <History className="h-3.5 w-3.5" /> Load mock
-          </Button>
           <Button variant="outline" size="sm" onClick={copyTranscript} className="gap-2">
             <Copy className="h-3.5 w-3.5" /> Copy
           </Button>
@@ -251,12 +286,32 @@ function Assistant() {
         onSubmit={(e) => { e.preventDefault(); send(); }}
         className="mt-3 flex gap-2"
       >
-        <Input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder={typing ? "Assistant is responding..." : "Ask anything about admissions..."}
-          disabled={typing}
-        />
+        <div className="relative flex-1">
+          <Input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder={typing ? "Assistant is responding..." : listening ? "Listening... Speak now!" : "Ask anything about admissions..."}
+            disabled={typing}
+            className="pr-12"
+          />
+          <button
+            type="button"
+            onClick={toggleListening}
+            disabled={typing}
+            className={`absolute right-3 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-lg transition-all ${
+              listening 
+                ? "bg-destructive text-destructive-foreground animate-pulse" 
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            }`}
+            title="Voice to Text"
+          >
+            {listening ? (
+              <Mic className="h-4 w-4 animate-bounce" />
+            ) : (
+              <Mic className="h-4 w-4" />
+            )}
+          </button>
+        </div>
         <Button type="submit" className="bg-gradient-primary" disabled={typing || !input.trim()}>
           <Send className="h-4 w-4" />
         </Button>

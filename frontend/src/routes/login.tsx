@@ -1,31 +1,34 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { GraduationCap, Mail, Lock, Info } from "lucide-react";
+import { GraduationCap, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuth, type Role } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const Route = createFileRoute("/login")({
-  head: () => ({ meta: [{ title: "Sign in | Intellipath" }] }),
+  head: () => ({ meta: [{ title: "Sign in | Ewebar" }] }),
   component: Login,
 });
 
-/**
- * Mock access-control resolver. In production this is decided server-side
- * based on the user's record. Here we infer admin from the email pattern.
- */
-function resolveRole(email: string): Role {
-  const e = email.trim().toLowerCase();
-  return e.startsWith("admin") || e.endsWith("@Intellipath.admin") ? "admin" : "student";
-}
-
 function Login() {
-  const [email, setEmail] = useState("ada@example.com");
-  const [password, setPassword] = useState("demo1234");
+  const [rememberMe, setRememberMe] = useState(() => {
+    if (typeof window !== "undefined") {
+      return !!localStorage.getItem("Ewebar.rememberedEmail");
+    }
+    return false;
+  });
+  const [email, setEmail] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("Ewebar.rememberedEmail") || "";
+    }
+    return "";
+  });
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -33,12 +36,18 @@ function Login() {
     e.preventDefault();
     setLoading(true);
     try {
-      const role = resolveRole(email);
-      const u = await login(email, password, role);
+      const u = await login(email, password);
+      
+      if (rememberMe) {
+        localStorage.setItem("Ewebar.rememberedEmail", email);
+      } else {
+        localStorage.removeItem("Ewebar.rememberedEmail");
+      }
+
       toast.success(`Welcome, ${u.name}`);
       navigate({ to: u.role === "admin" ? "/admin" : "/dashboard" });
-    } catch {
-      toast.error("Invalid credentials");
+    } catch (err: any) {
+      toast.error(err.message || "Invalid credentials");
     } finally {
       setLoading(false);
     }
@@ -56,13 +65,13 @@ function Login() {
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/15">
               <GraduationCap className="h-5 w-5" />
             </div>
-            <span className="font-display text-lg font-bold">Intellipath</span>
+            <span className="font-display text-lg font-bold">Ewebar</span>
           </Link>
           <div>
             <h2 className="font-display text-3xl font-bold leading-tight">Welcome back to your future.</h2>
             <p className="mt-3 text-primary-foreground/80">Pick up where you left off. Your recommendations are waiting.</p>
           </div>
-          <p className="text-xs text-primary-foreground/60">© Intellipath</p>
+          <p className="text-xs text-primary-foreground/60">© Ewebar</p>
         </div>
       </div>
 
@@ -75,30 +84,59 @@ function Login() {
         >
           <div>
             <h1 className="font-display text-2xl font-bold">Sign in</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Access is granted automatically by your account role.</p>
+            <p className="mt-1 text-sm text-muted-foreground">Enter your credentials below to access your account.</p>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <div className="relative">
               <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input id="email" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-9" />
+              <Input
+                id="email"
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="pl-9"
+                required
+              />
             </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="pw">Password</Label>
             <div className="relative">
               <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input id="pw" type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-9" />
+              <Input
+                id="pw"
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="pl-9 pr-10"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
             </div>
           </div>
 
-          <div className="flex items-start gap-2 rounded-lg border bg-muted/40 p-3 text-xs text-muted-foreground">
-            <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
-            <span>
-              Demo: any email signs in as <strong className="text-foreground">student</strong>.
-              Emails starting with <code className="rounded bg-background px-1">admin</code> sign in as <strong className="text-foreground">admin</strong>.
-            </span>
+          <div className="flex items-center space-x-2 py-1">
+            <input
+              type="checkbox"
+              id="remember"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+            />
+            <label htmlFor="remember" className="text-xs text-muted-foreground cursor-pointer select-none">
+              Remember me
+            </label>
           </div>
 
           <Button type="submit" className="w-full bg-gradient-primary" disabled={loading}>

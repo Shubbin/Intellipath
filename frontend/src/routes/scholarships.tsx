@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/scholarships")({
   beforeLoad: requireRole("student"),
-  head: () => ({ meta: [{ title: "Scholarships | Intellipath" }] }),
+  head: () => ({ meta: [{ title: "Scholarships | Ewebar" }] }),
   component: () => <AppLayout><Scholarships /></AppLayout>,
 });
 

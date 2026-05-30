@@ -2,12 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { requireRole } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { ScanLine, FilePlus, Loader2 } from "lucide-react";
+import { ScanLine, FilePlus, Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
 import { AppLayout } from "@/layouts/AppLayout";
 import { PageHeader, Badge, Skeleton } from "@/components/ui-kit";
 import { useApi } from "@/hooks/useApi";
-import { getProfile, ocrExtractResult } from "@/services/api";
+import { getProfile, ocrExtractResult, updateProfile } from "@/services/api";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -15,14 +15,34 @@ import { Textarea } from "@/components/ui/textarea";
 
 export const Route = createFileRoute("/profile")({
   beforeLoad: requireRole("student"),
-  head: () => ({ meta: [{ title: "Profile | Intellipath" }] }),
+  head: () => ({ meta: [{ title: "Profile | Ewebar" }] }),
   component: () => <AppLayout><Profile /></AppLayout>,
 });
 
 function Profile() {
-  const { data, loading } = useApi(getProfile);
+  const { data, loading, error } = useApi(getProfile);
   const [extracting, setExtracting] = useState(false);
   const [extracted, setExtracted] = useState<Awaited<ReturnType<typeof ocrExtractResult>> | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  // Local form state — synced from data on load
+  const [form, setForm] = useState({
+    jambScore: "",
+    waecAggregate: "",
+    bio: "",
+    preferredUniversities: "",
+  });
+
+  // Sync form when data loads
+  const initialized = data && form.jambScore === "";
+  if (initialized) {
+    setForm({
+      jambScore: String(data.jambScore || ""),
+      waecAggregate: data.waecAggregate || "",
+      bio: data.bio || "",
+      preferredUniversities: (data.preferredUniversities || []).join(", "),
+    });
+  }
 
   const handleResultUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -31,13 +51,51 @@ function Profile() {
     try {
       const res = await ocrExtractResult(file);
       setExtracted(res);
-      toast.success(`Extracted ${res.examType} result`);
+      if (res.score > 0) {
+        toast.success(`Extracted ${res.examType} result — score: ${res.score}`);
+      } else {
+        toast.info(`Document uploaded. OCR extraction is processing.`);
+      }
+    } catch {
+      toast.error("Failed to process the document");
     } finally {
       setExtracting(false);
     }
   };
 
+  const handleSave = async () => {
+    if (!data) return;
+    setSaving(true);
+    try {
+      await updateProfile({
+        name: data.name,
+        jambScore: Number(form.jambScore) || 0,
+        interests: data.interests,
+        state: data.state,
+      });
+      toast.success("Profile updated successfully");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to save profile");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (error) {
+    return (
+      <div className="rounded-2xl border bg-card p-8 text-center shadow-soft">
+        <p className="font-medium text-destructive">Failed to load profile</p>
+        <p className="mt-1 text-sm text-muted-foreground">{error.message}</p>
+      </div>
+    );
+  }
+
   if (loading || !data) return <Skeleton className="h-96 w-full" />;
+
+  // Compute initials from actual name
+  const initials = data.name
+    ? data.name.split(" ").map((s: string) => s[0]).slice(0, 2).join("").toUpperCase()
+    : "??";
 
   return (
     <div className="space-y-6">
@@ -47,23 +105,25 @@ function Profile() {
         <div className="rounded-2xl border bg-card p-6 shadow-soft">
           <div className="flex flex-col items-center text-center">
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-primary text-2xl font-bold text-primary-foreground">
-              AE
+              {initials}
             </div>
-            <h3 className="mt-3 font-display text-lg font-semibold">{data.name}</h3>
-            <p className="text-sm text-muted-foreground">{data.email}</p>
+            <h3 className="mt-3 font-display text-lg font-semibold">{data.name || "—"}</h3>
+            <p className="text-sm text-muted-foreground">{data.email || "—"}</p>
           </div>
           <div className="mt-6 space-y-3 text-sm">
-            <div className="flex justify-between"><span className="text-muted-foreground">Phone</span><span>{data.phone}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">DOB</span><span>{data.dob}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">State</span><span>{data.state}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">JAMB</span><span className="font-semibold text-primary">{data.jambScore}</span></div>
+            {data.phone && <div className="flex justify-between"><span className="text-muted-foreground">Phone</span><span>{data.phone}</span></div>}
+            {data.dob && <div className="flex justify-between"><span className="text-muted-foreground">DOB</span><span>{data.dob}</span></div>}
+            {data.state && <div className="flex justify-between"><span className="text-muted-foreground">State</span><span>{data.state}</span></div>}
+            {data.jambScore > 0 && <div className="flex justify-between"><span className="text-muted-foreground">JAMB</span><span className="font-semibold text-primary">{data.jambScore}</span></div>}
           </div>
-          <div className="mt-5">
-            <p className="mb-2 text-xs uppercase tracking-wider text-muted-foreground">Interests</p>
-            <div className="flex flex-wrap gap-1.5">
-              {data.interests.map((i) => <Badge key={i} tone="primary">{i}</Badge>)}
+          {data.interests && data.interests.length > 0 && (
+            <div className="mt-5">
+              <p className="mb-2 text-xs uppercase tracking-wider text-muted-foreground">Interests</p>
+              <div className="flex flex-wrap gap-1.5">
+                {data.interests.map((interest: string) => <Badge key={interest} tone="primary">{interest}</Badge>)}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="lg:col-span-2 space-y-6">
@@ -85,16 +145,20 @@ function Profile() {
               <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-5 rounded-xl border bg-background p-4">
                 <div className="flex items-center justify-between">
                   <Badge tone="success">{extracted.examType} extracted</Badge>
-                  <span className="font-display text-xl font-bold gradient-text">{extracted.score}</span>
+                  {extracted.score > 0 && <span className="font-display text-xl font-bold gradient-text">{extracted.score}</span>}
                 </div>
-                <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                  {extracted.subjects.map((s, i) => (
-                    <div key={i} className="flex items-center justify-between rounded-lg border bg-card px-3 py-2 text-sm">
-                      <Input defaultValue={s.name} className="border-0 p-0 text-sm" />
-                      <Input defaultValue={s.grade} className="w-16 border-0 p-0 text-right text-sm" />
-                    </div>
-                  ))}
-                </div>
+                {extracted.subjects && extracted.subjects.length > 0 ? (
+                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                    {extracted.subjects.map((s: any, i: number) => (
+                      <div key={i} className="flex items-center justify-between rounded-lg border bg-card px-3 py-2 text-sm">
+                        <span>{s.name}</span>
+                        <Badge tone="success">{s.grade}</Badge>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-3 text-xs text-muted-foreground">Document received. Full extraction requires server-side OCR processing.</p>
+                )}
               </motion.div>
             )}
           </div>
@@ -103,14 +167,49 @@ function Profile() {
           <div className="rounded-2xl border bg-card p-6 shadow-soft">
             <h3 className="mb-4 font-display text-lg font-semibold">Academic information</h3>
             <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2"><Label>JAMB Score</Label><Input defaultValue={data.jambScore} /></div>
-              <div className="space-y-2"><Label>WAEC Aggregate</Label><Input defaultValue={data.waecAggregate} /></div>
-              <div className="space-y-2 md:col-span-2"><Label>Bio</Label><Textarea defaultValue={data.bio} /></div>
-              <div className="space-y-2 md:col-span-2"><Label>Preferred universities</Label>
-                <Input defaultValue={data.preferredUniversities.join(", ")} />
+              <div className="space-y-2">
+                <Label>JAMB Score</Label>
+                <Input
+                  value={form.jambScore}
+                  onChange={(e) => setForm((f) => ({ ...f, jambScore: e.target.value }))}
+                  type="number"
+                  min={0}
+                  max={400}
+                  placeholder="e.g. 268"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>WAEC Aggregate</Label>
+                <Input
+                  value={form.waecAggregate}
+                  onChange={(e) => setForm((f) => ({ ...f, waecAggregate: e.target.value }))}
+                  placeholder="e.g. A1, B2, A1, B3"
+                />
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <Label>Bio</Label>
+                <Textarea
+                  value={form.bio}
+                  onChange={(e) => setForm((f) => ({ ...f, bio: e.target.value }))}
+                  placeholder="Tell us about yourself..."
+                />
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <Label>Preferred universities (comma-separated)</Label>
+                <Input
+                  value={form.preferredUniversities}
+                  onChange={(e) => setForm((f) => ({ ...f, preferredUniversities: e.target.value }))}
+                  placeholder="e.g. UNILAG, Covenant, OAU"
+                />
               </div>
             </div>
-            <Button className="mt-4 bg-gradient-primary">Save changes</Button>
+            <Button
+              className="mt-4 bg-gradient-primary gap-2"
+              onClick={handleSave}
+              disabled={saving}
+            >
+              {saving ? <><Loader2 className="h-4 w-4 animate-spin" /> Saving...</> : <><Save className="h-4 w-4" /> Save changes</>}
+            </Button>
           </div>
         </div>
       </div>

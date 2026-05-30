@@ -11,8 +11,8 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Intellipath | University Admission Platform" },
-      { name: "description", content: "Discover universities, get personalized admission recommendations, find scholarships, and plan your future career." },
+      { title: "Ewebar | University Admission Platform" },
+      { name: "description", content: "Discover universities, get personalized admission recommendations, and plan your future career." },
     ],
   }),
   component: Landing,
@@ -20,7 +20,7 @@ export const Route = createFileRoute("/")({
 
 const features = [
   { icon: GraduationCap, title: "Admission Recommendations", desc: "Intelligent matching for your scores and interests.", tone: "primary" },
-  { icon: Wallet, title: "Scholarship Discovery", desc: "Find scholarships you actually qualify for, with countdowns and requirements.", tone: "success" },
+  // { icon: Wallet, title: "Scholarship Discovery", desc: "Find scholarships you actually qualify for, with countdowns and requirements.", tone: "success" },
   { icon: Brain, title: "Career Guidance", desc: "A 24/7 mentor that maps your strengths to careers and degrees.", tone: "warning" },
   { icon: FileScan, title: "Result Upload", desc: "Upload JAMB or WAEC results for automatic subject extraction.", tone: "primary" },
 ] as const;
@@ -34,13 +34,13 @@ const toneMap = {
 const stats = [
   { icon: Users, value: "18,400+", label: "Students guided" },
   { icon: GraduationCap, value: "184", label: "Universities" },
-  { icon: Trophy, value: "312", label: "Scholarships" },
+  // { icon: Trophy, value: "312", label: "Scholarships" },
   { icon: Globe2, value: "12", label: "Countries" },
 ];
 
 const testimonials = [
-  { name: "Tunde A.", role: "UNILAG, Computer Science", quote: "Intellipath matched me with three programs I'd never considered. I got into my top choice." },
-  { name: "Aisha B.", role: "Covenant, Engineering", quote: "The scholarship tracker alone saved me months of searching. Beautifully designed too." },
+  { name: "Tunde A.", role: "UNILAG, Computer Science", quote: "Ewebar matched me with three programs I'd never considered. I got into my top choice." },
+  { name: "Aisha B.", role: "Covenant, Engineering", quote: "The career advisor tool alone saved me months of searching and helped me choose the right path." },
   { name: "Chinedu O.", role: "OAU, Medicine", quote: "The AI assistant felt like talking to a real counselor. Confidence-building and honest." },
 ];
 
@@ -82,7 +82,7 @@ function Landing() {
               transition={{ delay: 0.2 }}
               className="mt-5 max-w-xl text-base text-muted-foreground md:text-lg"
             >
-              Intellipath analyses your results, interests, and goals to recommend programs and scholarships that fit you.
+              Ewebar analyses your results, interests, and goals to recommend programs that fit you.
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -90,13 +90,17 @@ function Landing() {
               transition={{ delay: 0.3 }}
               className="mt-8 flex flex-wrap gap-3"
             >
-              <Link to="/register">
-                <Button size="lg" className="bg-gradient-primary shadow-elegant">
-                  Start free <ArrowRight className="ml-1 h-4 w-4" />
-                </Button>
+              <Link
+                to="/register"
+                className="inline-flex items-center justify-center rounded-xl bg-gradient-primary text-primary-foreground h-11 px-8 text-sm font-semibold shadow-elegant hover:opacity-95 transition-all"
+              >
+                Start free <ArrowRight className="ml-1 h-4 w-4" />
               </Link>
-              <Link to="/assistant">
-                <Button size="lg" variant="outline">Consult the assistant</Button>
+              <Link
+                to="/assistant"
+                className="inline-flex items-center justify-center rounded-xl border border-input bg-background hover:bg-accent hover:text-accent-foreground h-11 px-8 text-sm font-medium transition-all"
+              >
+                Consult the assistant
               </Link>
             </motion.div>
             <div className="mt-6 flex items-center gap-4 text-sm text-muted-foreground">
@@ -235,8 +239,11 @@ function Landing() {
         <div className="mt-16 overflow-hidden rounded-3xl bg-gradient-primary p-10 text-center text-primary-foreground shadow-elegant md:p-16">
           <h2 className="font-display text-3xl font-bold md:text-4xl">Your future university is one click away.</h2>
           <p className="mt-3 text-primary-foreground/85">Create a free account and get your first recommendations today.</p>
-          <Link to="/register">
-            <Button size="lg" variant="secondary" className="mt-6">Get started free <ArrowRight className="ml-1 h-4 w-4" /></Button>
+          <Link
+            to="/register"
+            className="mt-6 inline-flex items-center justify-center rounded-xl bg-secondary text-secondary-foreground hover:bg-secondary/90 h-11 px-8 text-sm font-semibold shadow-soft transition-all"
+          >
+            Get started free <ArrowRight className="ml-1 h-4 w-4" />
           </Link>
         </div>
       </section>

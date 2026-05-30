@@ -1,64 +1,132 @@
-import { Course } from "../models/universityModel.js";
+import { Program } from "../models/universityModel.js";
 
-/**
- * Calculate match score for a student and a course.
- * @param {Object} student - Student profile data
- * @param {Object} course - Course data
- * @returns {Number} - Match score percentage (0-100)
- */
-export const calculateMatchScore = (student, course) => {
+export const calculateMatchScore = (student, program) => {
   let score = 0;
   let weights = {
     jamb: 40,
-    subjects: 30,
-    interests: 30,
+    subjects: 35,
+    interests: 25,
+  };
+
+  const matches = {
+    jambMatched: false,
+    subjectCount: 0,
+    requiredCount: 0,
+    interestMatched: false,
+    prerequisitesMet: true,
+    missingPrerequisites: [],
   };
 
   // 1. JAMB Score (40%)
-  // Assume cutoff is the minimum required
-  if (student.jambScore >= course.cutoffMark) {
+  if (student.jambScore >= program.cutoffMark) {
     score += weights.jamb;
-  } else if (student.jambScore >= course.cutoffMark - 20) {
+    matches.jambMatched = true;
+  } else if (student.jambScore >= program.cutoffMark - 20) {
     score += weights.jamb * 0.7; // Close match
+    matches.jambMatched = true;
   }
 
-  // 2. Subjects (30%)
-  if (student.subjects && course.requiredSubjects) {
-    const studentSubjectNames = student.subjects.map((s) => s.name.toLowerCase());
-    const matchedSubjects = course.requiredSubjects.filter((s) =>
-      studentSubjectNames.includes(s.toLowerCase())
+  // 2. Required O'Level Subjects (35%)
+  const studentSubjectNames = (student.subjects || []).map((s) => s.name.toLowerCase());
+  const programRequirements = program.requirements || [];
+  matches.requiredCount = programRequirements.length;
+
+  if (programRequirements.length > 0) {
+    const matchedSubjects = programRequirements.filter((reqSub) =>
+      studentSubjectNames.includes(reqSub.toLowerCase())
     );
-    const subjectMatchRatio = matchedSubjects.length / course.requiredSubjects.length;
+    matches.subjectCount = matchedSubjects.length;
+    const subjectMatchRatio = matchedSubjects.length / programRequirements.length;
     score += subjectMatchRatio * weights.subjects;
+  } else {
+    // Default subject score if no requirements are strictly indexed
+    score += weights.subjects;
   }
 
-  // 3. Interests (30%)
-  if (student.interests && course.courseName) {
-    const courseNameWords = course.courseName.toLowerCase().split(" ");
-    const matchedInterests = student.interests.filter((interest) =>
-      courseNameWords.some((word) => word.includes(interest.toLowerCase()) || interest.toLowerCase().includes(word))
-    );
-    if (matchedInterests.length > 0) {
-      score += weights.interests;
+  // 3. Faculty/Stream Prerequisite Checks (Strict Safeguard)
+  // E.g., Engineering/Tech/Science requires Mathematics and specific electives
+  const programNameLower = program.name.toLowerCase();
+  const facultyNameLower = (program.facultyId?.name || "").toLowerCase();
+  
+  if (
+    programNameLower.includes("engineer") || 
+    programNameLower.includes("computer science") || 
+    facultyNameLower.includes("engineering") || 
+    facultyNameLower.includes("science")
+  ) {
+    const hasPhysics = studentSubjectNames.includes("physics");
+    const hasMath = studentSubjectNames.includes("general mathematics") || studentSubjectNames.includes("further mathematics");
+    
+    if (!hasMath) {
+      matches.prerequisitesMet = false;
+      matches.missingPrerequisites.push("Mathematics");
+    }
+    if (programNameLower.includes("engineer") && !hasPhysics) {
+      matches.prerequisitesMet = false;
+      matches.missingPrerequisites.push("Physics");
+    }
+
+    if (!matches.prerequisitesMet) {
+      score = Math.max(0, score - 20); // Impose prerequisite penalty
     }
   }
 
-  return Math.min(Math.round(score), 100);
+  // 4. Student Interests & Career Alignment (25%)
+  if (student.interests && student.interests.length > 0 && program.name) {
+    const programNameWords = program.name.toLowerCase().split(" ");
+    const matchedInterests = student.interests.filter((interest) =>
+      programNameWords.some((word) => 
+        word.includes(interest.toLowerCase()) || 
+        interest.toLowerCase().includes(word)
+      )
+    );
+    if (matchedInterests.length > 0) {
+      score += weights.interests;
+      matches.interestMatched = true;
+    }
+  }
+
+  return {
+    matchPercentage: Math.min(Math.round(score), 100),
+    details: matches,
+  };
 };
 
+/**
+ * Generates academic recommendations using indexed database pre-filtering.
+ */
 export const generateRecommendations = async (user) => {
-  const courses = await Course.find({}).populate("universityId");
+  // 1. Scalable Database Index Pre-filtering!
+  const query = {
+    cutoffMark: { $lte: user.jambScore + 15 },
+  };
 
-  const recommendations = courses
-    .map((course) => {
-      const matchPercentage = calculateMatchScore(user, course);
+  const programs = await Program.find(query)
+    .populate("institutionId")
+    .populate("facultyId")
+    .limit(100);
+
+  const recommendations = programs
+    .map((program) => {
+      const { matchPercentage, details } = calculateMatchScore(user, program);
+      const institutionName = program.institutionId?.name || "Unknown University";
+      
+      // Compute explainable matching criteria
+      let explanation = `Excellent match! Your JAMB score (${user.jambScore}) meets or exceeds the cutoff of ${program.cutoffMark} for ${program.name} at ${institutionName}.`;
+      
+      if (!details.prerequisitesMet) {
+        explanation = `Alert: Missing core prerequisite O'Level subjects (${details.missingPrerequisites.join(", ")}) required for ${program.name}. Match score has been adjusted accordingly.`;
+      } else if (details.interestMatched) {
+        explanation += ` This program perfectly aligns with your expressed academic interests in "${user.interests.slice(0, 3).join(", ")}".`;
+      }
+
       return {
-        course,
+        course: program,
         matchPercentage,
-        explanation: `You have a ${matchPercentage}% match for ${course.courseName} at ${course.universityId.name} because your JAMB score and interests align with their requirements.`,
+        explanation,
       };
     })
-    .filter((rec) => rec.matchPercentage >= 50) // Only show 50%+ matches
+    .filter((rec) => rec.matchPercentage >= 40) // Return quality matches
     .sort((a, b) => b.matchPercentage - a.matchPercentage);
 
   return recommendations.slice(0, 5); // Return top 5

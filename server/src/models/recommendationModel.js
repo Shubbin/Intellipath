@@ -11,7 +11,7 @@ const recommendationSchema = new mongoose.Schema(
       {
         courseId: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "Course",
+          ref: "Program",
         },
         matchPercentage: Number,
         explanation: String,

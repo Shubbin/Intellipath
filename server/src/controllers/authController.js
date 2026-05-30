@@ -6,7 +6,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 // @route   POST /api/auth/register
 // @access  Public
 export const registerUser = asyncHandler(async (req, res) => {
-  const { fullName, email, password, role } = req.body;
+  const { fullName, email, password } = req.body;
 
   const userExists = await User.findOne({ email });
 
@@ -19,7 +19,7 @@ export const registerUser = asyncHandler(async (req, res) => {
     fullName,
     email,
     password,
-    role: role || "student",
+    role: "student", // Strictly enforce default student role for public registration
   });
 
   if (user) {

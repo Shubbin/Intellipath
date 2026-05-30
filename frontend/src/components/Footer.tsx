@@ -10,7 +10,7 @@ export function Footer() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-primary">
               <GraduationCap className="h-4 w-4 text-primary-foreground" />
             </div>
-            <span className="font-display font-bold">Intellipath</span>
+            <span className="font-display font-bold">Ewebar</span>
           </div>
           <p className="mt-3 text-sm text-muted-foreground">
             Intelligent admission guidance for the next generation of African students.
@@ -20,7 +20,7 @@ export function Footer() {
           <h4 className="mb-3 text-sm font-semibold">Product</h4>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li><Link to="/recommendations" className="hover:text-foreground">Recommendations</Link></li>
-            <li><Link to="/scholarships" className="hover:text-foreground">Scholarships</Link></li>
+            {/* <li><Link to="/scholarships" className="hover:text-foreground">Scholarships</Link></li> */}
             <li><Link to="/assistant" className="hover:text-foreground">AI Assistant</Link></li>
           </ul>
         </div>
@@ -40,7 +40,7 @@ export function Footer() {
         </div>
       </div>
       <div className="border-t py-4 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} Intellipath. Built for ambitious students.
+        © {new Date().getFullYear()} Ewebar. Built for ambitious students.
       </div>
     </footer>
   );

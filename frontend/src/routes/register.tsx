@@ -1,31 +1,67 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { GraduationCap } from "lucide-react";
+import { GraduationCap, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { registerUser } from "@/services/api";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const Route = createFileRoute("/register")({
-  head: () => ({ meta: [{ title: "Create account | Intellipath" }] }),
+  head: () => ({ meta: [{ title: "Create account | Ewebar" }] }),
   component: Register,
 });
 
 function Register() {
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", confirmPassword: "" });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { register } = useAuth();
   const navigate = useNavigate();
   const upd = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, [k]: e.target.value });
 
+  const validatePassword = (password: string) => {
+    const errors: string[] = [];
+    if (password.length < 8) {
+      errors.push("at least 8 characters");
+    }
+    if (!/[A-Z]/.test(password)) {
+      errors.push("one capital letter");
+    }
+    if (!/[a-z]/.test(password)) {
+      errors.push("one small letter");
+    }
+    if (!/[0-9]/.test(password)) {
+      errors.push("one number");
+    }
+    if (!/[^A-Za-z0-9]/.test(password)) {
+      errors.push("one special character");
+    }
+    return errors;
+  };
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const passwordErrors = validatePassword(form.password);
+    if (passwordErrors.length > 0) {
+      toast.error(`Password must contain: ${passwordErrors.join(", ")}.`);
+      return;
+    }
+
+    if (form.password !== form.confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
     setLoading(true);
     try {
-      await registerUser(form.name, form.email, form.password);
+      await register(form.name, form.email, form.password);
       toast.success("Account created. Welcome!");
       navigate({ to: "/dashboard" });
+    } catch (err: any) {
+      toast.error(err.message || "Failed to create account");
     } finally {
       setLoading(false);
     }
@@ -44,7 +80,7 @@ function Register() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-primary">
               <GraduationCap className="h-4 w-4 text-primary-foreground" />
             </div>
-            <span className="font-display font-bold">Intellipath</span>
+            <span className="font-display font-bold">Ewebar</span>
           </Link>
           <div>
             <h1 className="font-display text-2xl font-bold">Create your account</h1>
@@ -60,7 +96,46 @@ function Register() {
           </div>
           <div className="space-y-2">
             <Label>Password</Label>
-            <Input type="password" value={form.password} onChange={upd("password")} placeholder="••••••••" required />
+            <div className="relative">
+              <Input
+                type={showPassword ? "text" : "password"}
+                value={form.password}
+                onChange={upd("password")}
+                placeholder="••••••••"
+                className="pr-10"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+            <p className="text-[11px] text-muted-foreground leading-normal mt-1">
+              Must be at least 8 characters with a capital letter, small letter, number, and special character.
+            </p>
+          </div>
+          <div className="space-y-2">
+            <Label>Confirm password</Label>
+            <div className="relative">
+              <Input
+                type={showConfirmPassword ? "text" : "password"}
+                value={form.confirmPassword}
+                onChange={upd("confirmPassword")}
+                placeholder="••••••••"
+                className="pr-10"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              >
+                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
           </div>
           <Button type="submit" className="w-full bg-gradient-primary" disabled={loading}>
             {loading ? "Creating..." : "Create account"}

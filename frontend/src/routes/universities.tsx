@@ -2,56 +2,84 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMemo, useState } from "react";
 import { Search, MapPin, Users, TrendingUp, Award, SlidersHorizontal } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { requireRole } from "@/contexts/AuthContext";
 import { AppLayout } from "@/layouts/AppLayout";
 import { PageHeader, Badge, Skeleton, EmptyState } from "@/components/ui-kit";
-import { useApi } from "@/hooks/useApi";
 import { getUniversities, getCourses } from "@/services/api";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/universities")({
   beforeLoad: requireRole("student"),
-  head: () => ({ meta: [{ title: "Discover Universities — Intellipath" }] }),
+  head: () => ({ meta: [{ title: "Discover Universities — Ewebar" }] }),
   component: () => <AppLayout><Discover /></AppLayout>,
 });
 
 function Discover() {
-  const { data: unis, loading } = useApi(getUniversities);
-  const { data: courses } = useApi(getCourses);
+  const { data: unis, isLoading: loadingUnis } = useQuery({
+    queryKey: ["universities"],
+    queryFn: getUniversities,
+    staleTime: 5 * 60 * 1000, // 5 minutes cache lifetime
+  });
+  const { data: courses } = useQuery({
+    queryKey: ["courses"],
+    queryFn: getCourses,
+    staleTime: 10 * 60 * 1000, // 10 minutes cache lifetime
+  });
+
+  const loading = loadingUnis;
 
   const [q, setQ] = useState("");
   const [location, setLocation] = useState("All");
   const [program, setProgram] = useState("All");
-  const [sort, setSort] = useState<"ranking" | "acceptance" | "students">("ranking");
+  const [instType, setInstType] = useState("All");
+  const [sort, setSort] = useState<"name" | "acceptance" | "students">("name");
 
   const locations = useMemo(() => {
     const all = (unis ?? []).map((u) => u.location.split(",")[0].trim());
     return ["All", ...Array.from(new Set(all))];
   }, [unis]);
-  const programs = ["All", ...(courses ?? []).map((c) => c.name)];
+  const programs = useMemo(() => ["All", ...Array.from(new Set((courses ?? []).map((c) => c.name)))], [courses]);
 
   const results = useMemo(() => {
     let r = unis ?? [];
     if (q) r = r.filter((u) => u.name.toLowerCase().includes(q.toLowerCase()));
     if (location !== "All") r = r.filter((u) => u.location.startsWith(location));
-    // program filter is decorative for mock data — always retains list
-    if (sort === "ranking") r = [...r].sort((a, b) => a.ranking - b.ranking);
+    if (instType !== "All") r = r.filter((u) => u.type === instType);
+    if (program !== "All") {
+      const offeringInstitutionIds = (courses ?? [])
+        .filter((c) => c.name === program)
+        .map((c) => c.institutionId);
+      r = r.filter((u) => offeringInstitutionIds.includes(u.id));
+    }
+    
+    if (sort === "name") r = [...r].sort((a, b) => a.name.localeCompare(b.name));
     if (sort === "acceptance") r = [...r].sort((a, b) => b.acceptance - a.acceptance);
     if (sort === "students") r = [...r].sort((a, b) => b.students - a.students);
     return r;
-  }, [unis, q, location, sort]);
+  }, [unis, q, location, instType, program, courses, sort]);
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Discover universities" subtitle="Search and filter across Nigeria's top institutions." />
+      <PageHeader title="Discover institutions" subtitle="Search and filter across Nigeria's top universities, polytechnics, and colleges." />
 
       <div className="rounded-2xl border bg-card p-4 shadow-soft">
         <div className="flex flex-wrap gap-3">
           <div className="relative flex-1 min-w-[220px]">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search universities..." className="pl-9" />
+            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search institutions..." className="pl-9" />
           </div>
+          <select
+            value={instType}
+            onChange={(e) => setInstType(e.target.value)}
+            className="rounded-md border bg-background px-3 py-2 text-sm"
+          >
+            <option value="All">All Types</option>
+            <option value="university">Universities</option>
+            <option value="polytechnic">Polytechnics</option>
+            <option value="college_of_education">Colleges of Education</option>
+          </select>
           <select
             value={location}
             onChange={(e) => setLocation(e.target.value)}
@@ -71,7 +99,7 @@ function Discover() {
             onChange={(e) => setSort(e.target.value as typeof sort)}
             className="rounded-md border bg-background px-3 py-2 text-sm"
           >
-            <option value="ranking">Sort: Ranking</option>
+            <option value="name">Sort: Alphabetical (A-Z)</option>
             <option value="acceptance">Sort: Acceptance %</option>
             <option value="students">Sort: Student body</option>
           </select>
@@ -89,7 +117,7 @@ function Discover() {
       )}
 
       {!loading && results.length === 0 && (
-        <EmptyState icon={Search} title="No universities match" hint="Try removing filters or a different search." />
+        <EmptyState icon={Search} title="No institutions match" hint="Try removing filters or a different search." />
       )}
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -103,20 +131,21 @@ function Discover() {
               exit={{ opacity: 0, scale: 0.96 }}
               transition={{ delay: i * 0.04, type: "spring", stiffness: 260, damping: 24 }}
               whileHover={{ y: -4 }}
-              className="group flex flex-col rounded-2xl border bg-card p-5 shadow-soft transition-shadow hover:shadow-elegant"
+              className="group flex flex-col rounded-2xl border bg-card p-5 shadow-soft transition-shadow hover:shadow-elegant pt-6"
             >
-              <div className="mb-3 flex items-start justify-between">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-primary/10 text-3xl">
-                  {u.logo}
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-primary text-sm font-bold text-primary-foreground font-display">
+                  {u.name.split(" ").map((s) => s[0]).slice(0, 2).join("")}
                 </div>
-                <Badge tone="primary">#{u.ranking}</Badge>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-display text-base font-semibold leading-tight truncate">{u.name}</h3>
+                  <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
+                    <MapPin className="h-3 w-3 shrink-0" />{u.location}
+                  </p>
+                </div>
               </div>
-              <h3 className="font-display text-lg font-semibold">{u.name}</h3>
-              <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-                <MapPin className="h-3 w-3" />{u.location}
-              </p>
               <div className="mt-3 flex flex-wrap gap-1.5">
-                {u.tags.map((t) => <Badge key={t}>{t}</Badge>)}
+                {u.tags.map((t: string) => <Badge key={t}>{t}</Badge>)}
               </div>
               <div className="mt-4 grid grid-cols-3 gap-2 text-xs">
                 <div className="rounded-lg bg-muted/50 p-2">
@@ -135,8 +164,12 @@ function Discover() {
                   <p className="text-muted-foreground">tuition</p>
                 </div>
               </div>
-              <Link to="/universities/$id" params={{ id: u.id }} className="mt-4">
-                <Button className="w-full bg-gradient-primary" size="sm">View details</Button>
+              <Link
+                to="/universities/$id"
+                params={{ id: u.id }}
+                className="mt-4 w-full inline-flex items-center justify-center rounded-xl bg-gradient-primary text-sm font-semibold text-primary-foreground h-9 px-4 shadow-soft hover:shadow-elegant transition-all text-center"
+              >
+                View details
               </Link>
             </motion.div>
           ))}

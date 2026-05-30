@@ -1,18 +1,23 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 export function useApi<T>(fn: () => Promise<T>, deps: unknown[] = []) {
-  const [data, setData] = useState<T | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-  useEffect(() => {
-    let alive = true;
-    setLoading(true);
-    fn()
-      .then((d) => alive && setData(d))
-      .catch((e) => alive && setError(e))
-      .finally(() => alive && setLoading(false));
-    return () => { alive = false; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps);
-  return { data, loading, error };
+  // Generate a strictly unique and stable query key based on function code string and dependency inputs
+  const fnKey = fn.toString().replace(/\s+/g, "");
+  const queryKey = [fnKey, ...deps];
+
+  const { data, isPending, error, refetch } = useQuery({
+    queryKey,
+    queryFn: fn,
+    staleTime: 5 * 60 * 1000, // Cache results for 5 minutes before considering them stale
+    gcTime: 10 * 60 * 1000,  // Keep unused cache data in memory for 10 minutes
+    retry: 1, // Automatically retry failed queries once before showing an error
+    refetchOnWindowFocus: false, // Disable automatic background fetches on window focus for consistent UX
+  });
+
+  return {
+    data: data !== undefined ? (data as T) : null,
+    loading: isPending,
+    error: error as Error | null,
+    refresh: refetch,
+  };
 }

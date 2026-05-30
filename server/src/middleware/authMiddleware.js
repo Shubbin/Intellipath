@@ -1,7 +1,8 @@
 import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
+import asyncHandler from "../utils/asyncHandler.js";
 
-export const protect = async (req, res, next) => {
+export const protect = asyncHandler(async (req, res, next) => {
   let token;
 
   if (
@@ -18,6 +19,11 @@ export const protect = async (req, res, next) => {
       // Get user from the token
       req.user = await User.findById(decoded.id).select("-password");
 
+      if (!req.user) {
+        res.status(401);
+        throw new Error("Not authorized, user not found");
+      }
+
       next();
     } catch (error) {
       console.error(error);
@@ -30,7 +36,7 @@ export const protect = async (req, res, next) => {
     res.status(401);
     throw new Error("Not authorized, no token");
   }
-};
+});
 
 // Grant access to specific roles
 export const authorize = (...roles) => {
@@ -43,4 +49,14 @@ export const authorize = (...roles) => {
     }
     next();
   };
+};
+
+// Admin-only shorthand
+export const adminOnly = (req, res, next) => {
+  if (req.user && req.user.role === "admin") {
+    next();
+  } else {
+    res.status(403);
+    throw new Error("Not authorized as admin");
+  }
 };

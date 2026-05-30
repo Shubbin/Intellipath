@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 const links = [
   { to: "/", label: "Home" },
   { to: "/recommendations", label: "Recommendations" },
-  { to: "/scholarships", label: "Scholarships" },
+  // { to: "/scholarships", label: "Scholarships" },
   { to: "/assistant", label: "AI Assistant" },
 ];
 
@@ -28,7 +28,7 @@ export function Navbar() {
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-primary shadow-glow">
             <GraduationCap className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span className="font-display text-lg font-bold tracking-tight">Intellipath</span>
+          <span className="font-display text-lg font-bold tracking-tight">Ewebar</span>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
@@ -47,8 +47,18 @@ export function Navbar() {
           <button onClick={toggle} aria-label="Toggle theme" className="rounded-lg p-2 hover:bg-accent">
             {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </button>
-          <Link to="/login"><Button variant="ghost" size="sm">Sign in</Button></Link>
-          <Link to="/register"><Button size="sm" className="bg-gradient-primary shadow-elegant">Get started</Button></Link>
+          <Link
+            to="/login"
+            className="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground h-9 px-3"
+          >
+            Sign in
+          </Link>
+          <Link
+            to="/register"
+            className="inline-flex items-center justify-center rounded-lg text-sm font-semibold transition-all bg-gradient-primary text-primary-foreground h-9 px-4 shadow-elegant hover:opacity-90"
+          >
+            Get started
+          </Link>
         </div>
 
         <button className="md:hidden" onClick={() => setOpen(!open)} aria-label="Menu">
@@ -65,8 +75,20 @@ export function Navbar() {
               </Link>
             ))}
             <div className="flex gap-2 pt-2">
-              <Link to="/login" className="flex-1"><Button variant="outline" className="w-full">Sign in</Button></Link>
-              <Link to="/register" className="flex-1"><Button className="w-full bg-gradient-primary">Sign up</Button></Link>
+              <Link
+                to="/login"
+                onClick={() => setOpen(false)}
+                className="flex-1 inline-flex items-center justify-center rounded-lg border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 text-xs font-semibold transition-colors text-center"
+              >
+                Sign in
+              </Link>
+              <Link
+                to="/register"
+                onClick={() => setOpen(false)}
+                className="flex-1 inline-flex items-center justify-center rounded-lg bg-gradient-primary text-primary-foreground h-9 text-xs font-semibold transition-all text-center shadow-soft"
+              >
+                Sign up
+              </Link>
             </div>
           </div>
         </motion.div>

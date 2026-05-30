@@ -1,4 +1,5 @@
 import { chatWithAI } from "../ai/groqService.js";
+import Notification from "../models/notificationModel.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
 // @desc    Chat with AI assistant
@@ -30,6 +31,15 @@ export const careerGuidance = asyncHandler(async (req, res) => {
   const prompt = `Based on my interest in ${interest}, what are the best career paths and universities in Nigeria?`;
   
   const response = await chatWithAI([{ role: "user", content: prompt }]);
+
+  // Trigger AI advisor notification
+  await Notification.create({
+    userId: req.user._id,
+    title: "AI Career Guidance Ready 🧠",
+    body: `Your custom AI advisor career guidance report for "${interest}" has been successfully compiled.`,
+    type: "info",
+    link: "/career",
+  });
 
   res.json({
     success: true,

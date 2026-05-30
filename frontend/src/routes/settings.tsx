@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { requireRole } from "@/contexts/AuthContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AppLayout } from "@/layouts/AppLayout";
 import { PageHeader } from "@/components/ui-kit";
 import { Label } from "@/components/ui/label";
@@ -8,18 +8,46 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
+import { updateProfile } from "@/services/api";
 
 export const Route = createFileRoute("/settings")({
   beforeLoad: requireRole("student"),
-  head: () => ({ meta: [{ title: "Settings — Intellipath" }] }),
+  head: () => ({ meta: [{ title: "Settings — Ewebar" }] }),
   component: () => <AppLayout><Settings /></AppLayout>,
 });
 
 function Settings() {
   const { theme, toggle } = useTheme();
+  const { user } = useAuth();
   const [emailNotif, setEmailNotif] = useState(true);
   const [pushNotif, setPushNotif] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  // Form state seeded from real auth user
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    if (user) {
+      setName(user.name || "");
+      setEmail(user.email || "");
+    }
+  }, [user]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await updateProfile({ name });
+      toast.success("Settings saved");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to save settings");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -28,8 +56,21 @@ function Settings() {
       <div className="space-y-6">
         <Section title="Account">
           <div className="grid gap-4 md:grid-cols-2">
-            <Field label="Full name"><Input defaultValue="Ada Eze" /></Field>
-            <Field label="Email"><Input defaultValue="ada.eze@example.com" /></Field>
+            <Field label="Full name">
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Your full name"
+              />
+            </Field>
+            <Field label="Email">
+              <Input
+                value={email}
+                readOnly
+                className="bg-muted cursor-not-allowed"
+                title="Email cannot be changed"
+              />
+            </Field>
           </div>
         </Section>
 
@@ -49,7 +90,9 @@ function Settings() {
         </Section>
 
         <div className="flex justify-end">
-          <Button className="bg-gradient-primary" onClick={() => toast.success("Settings saved")}>Save changes</Button>
+          <Button className="bg-gradient-primary gap-2" onClick={handleSave} disabled={saving}>
+            {saving ? <><Loader2 className="h-4 w-4 animate-spin" /> Saving...</> : "Save changes"}
+          </Button>
         </div>
       </div>
     </div>

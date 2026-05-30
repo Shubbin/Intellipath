@@ -14,7 +14,7 @@ import {
 
 export const Route = createFileRoute("/admin/")({
   beforeLoad: requireRole("admin"),
-  head: () => ({ meta: [{ title: "Admin — Intellipath" }] }),
+  head: () => ({ meta: [{ title: "Admin — Ewebar" }] }),
   component: () => <AppLayout variant="admin"><AdminOverview /></AppLayout>,
 });
 
@@ -40,15 +40,15 @@ function AdminOverview() {
         label: `D${i + 1}`,
         value: Math.round((base.at(-1)?.value ?? 800) * (0.55 + Math.sin(i / 4) * 0.1 + i * 0.012)),
       }));
-    return base.map((b) => ({ label: b.month, value: b.value }));
+    return base.map((b: any) => ({ label: b.month, value: b.value }));
   }, [data, range]);
 
   const facultyMix = useMemo(() => {
     const list = data?.facultyMix ?? [];
-    return faculty === "All" ? list : list.filter((f) => f.name === faculty);
+    return faculty === "All" ? list : list.filter((f: any) => f.name === faculty);
   }, [data, faculty]);
 
-  const facultyOptions = ["All", ...(data?.facultyMix ?? []).map((f) => f.name)];
+  const facultyOptions = ["All", ...(data?.facultyMix ?? []).map((f: any) => f.name)];
 
   return (
     <div className="space-y-6">
@@ -90,10 +90,10 @@ function AdminOverview() {
           </>
         ) : (
           <>
-            <StatCard label="Students" value={data?.totals.students.toLocaleString() ?? "—"} icon={Users} accent="primary" hint="+12% MoM" />
-            <StatCard label="Universities" value={data?.totals.universities ?? "—"} icon={GraduationCap} accent="success" />
-            <StatCard label="Scholarships" value={data?.totals.scholarships ?? "—"} icon={Wallet} accent="warning" />
-            <StatCard label="Applications" value={data?.totals.applications.toLocaleString() ?? "—"} icon={FileText} hint="+8% WoW" />
+            <StatCard label="Students" value={data?.totals.students.toLocaleString() ?? "—"} icon={Users} accent="primary" hint="Registered accounts" />
+            <StatCard label="Universities" value={data?.totals.universities ?? "—"} icon={GraduationCap} accent="success" hint="In database" />
+            <StatCard label="Courses" value={data?.totals.courses ?? "—"} icon={GraduationCap} accent="warning" hint="Active programs" />
+            <StatCard label="Applications" value={data?.totals.applications.toLocaleString() ?? "—"} icon={FileText} hint="Total submitted" />
           </>
         )}
       </div>
@@ -178,7 +178,7 @@ function AdminOverview() {
               <ResponsiveContainer>
                 <PieChart>
                   <Pie data={facultyMix} dataKey="value" nameKey="name" innerRadius={50} outerRadius={80}>
-                    {facultyMix.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                    {facultyMix.map((_: any, i: number) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                   </Pie>
                   <Legend wrapperStyle={{ fontSize: 11 }} />
                   <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, fontSize: 12 }} />
@@ -199,18 +199,11 @@ function AdminOverview() {
         <h3 className="mb-4 font-display text-lg font-semibold">Top universities by applications</h3>
         {loading ? (
           <Skeleton className="h-56 w-full" />
-        ) : (
+        ) : data?.topUniversities?.length > 0 ? (
           <div className="h-56">
             <ResponsiveContainer>
               <BarChart
-                data={[
-                  { name: "UNILAG", value: 2450 },
-                  { name: "Covenant", value: 1820 },
-                  { name: "OAU", value: 1640 },
-                  { name: "UI", value: 1420 },
-                  { name: "ABU", value: 1180 },
-                  { name: "Pan-Atlantic", value: 720 },
-                ]}
+                data={data.topUniversities}
                 layout="vertical"
                 margin={{ left: 10 }}
               >
@@ -221,6 +214,10 @@ function AdminOverview() {
                 <Bar dataKey="value" fill="var(--primary)" radius={[0, 8, 8, 0]} />
               </BarChart>
             </ResponsiveContainer>
+          </div>
+        ) : (
+          <div className="flex h-56 items-center justify-center text-sm text-muted-foreground">
+            No application data yet. Universities will appear here as students apply.
           </div>
         )}
       </motion.div>

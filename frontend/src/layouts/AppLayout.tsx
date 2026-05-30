@@ -7,6 +7,8 @@ import {
 import { useState, type ReactNode } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useApi } from "@/hooks/useApi";
+import { getNotifications } from "@/services/api";
 
 const studentNav = [
   { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -26,6 +28,7 @@ const adminNav = [
   { to: "/admin", icon: LayoutDashboard, label: "Overview" },
   { to: "/admin/universities", icon: GraduationCap, label: "Universities" },
   { to: "/admin/courses", icon: FileText, label: "Courses" },
+  { to: "/admin/applications", icon: FileText, label: "Applications" },
   { to: "/admin/scholarships", icon: Wallet, label: "Scholarships" },
   { to: "/admin/analytics", icon: BarChart, label: "Analytics" },
 ];
@@ -37,6 +40,16 @@ export function AppLayout({ variant = "student", children }: { variant?: "studen
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Fetch real notifications for students
+  const { data: notifications } = useApi(
+    async () => {
+      if (variant === "admin" || !user) return [];
+      return await getNotifications();
+    },
+    [user?.id, variant]
+  );
+  const unreadCount = notifications?.filter((n) => !n.read).length ?? 0;
 
   const handleLogout = () => {
     logout();
@@ -55,7 +68,7 @@ export function AppLayout({ variant = "student", children }: { variant?: "studen
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-primary">
               <GraduationCap className="h-4 w-4 text-primary-foreground" />
             </div>
-            <span className="font-display font-bold">Intellipath</span>
+            <span className="font-display font-bold">Ewebar</span>
           </Link>
           <button className="md:hidden" onClick={() => setMobileOpen(false)}><X className="h-5 w-5" /></button>
         </div>
@@ -70,14 +83,19 @@ export function AppLayout({ variant = "student", children }: { variant?: "studen
                 key={item.to}
                 to={item.to}
                 onClick={() => setMobileOpen(false)}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
+                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
                   active
                     ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-soft"
                     : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-foreground"
                 }`}
               >
                 <item.icon className="h-4 w-4" />
-                {item.label}
+                <span className="flex-1">{item.label}</span>
+                {item.to === "/notifications" && unreadCount > 0 && (
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground px-1.5 animate-pulse">
+                    {unreadCount}
+                  </span>
+                )}
               </Link>
             );
           })}
@@ -99,16 +117,22 @@ export function AppLayout({ variant = "student", children }: { variant?: "studen
             <Menu className="h-5 w-5" />
           </button>
           <h1 className="hidden font-display text-base font-semibold capitalize md:block">
-            {nav.find((n) => n.to === path)?.label ?? (variant === "admin" ? "Admin" : "Welcome")}
+            {nav.find((n) => path === n.to || (n.to !== "/dashboard" && n.to !== "/admin" && n.to !== "/" && path.startsWith(n.to)))?.label ?? (path.startsWith("/universities/") ? "University Details" : variant === "admin" ? "Admin" : "Welcome")}
           </h1>
           <div className="flex items-center gap-2">
             <button onClick={toggle} aria-label="Theme" className="rounded-lg p-2 hover:bg-accent">
               {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
-            <Link to="/notifications" className="relative rounded-lg p-2 hover:bg-accent">
-              <Bell className="h-4 w-4" />
-              <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-destructive" />
-            </Link>
+            {variant === "student" && (
+              <Link to="/notifications" className="relative rounded-lg p-2 hover:bg-accent" aria-label="Notifications">
+                <Bell className="h-4 w-4" />
+                {unreadCount > 0 && (
+                  <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[8px] font-bold text-destructive-foreground animate-pulse">
+                    {unreadCount}
+                  </span>
+                )}
+              </Link>
+            )}
             <Link to="/profile" className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-primary text-sm font-semibold text-primary-foreground">
               {initials}
             </Link>

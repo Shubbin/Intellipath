@@ -1,15 +1,17 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { redirect } from "@tanstack/react-router";
+import { loginUser, registerUser } from "@/services/api";
 
 export type Role = "student" | "admin";
 export type AuthUser = { id: string; name: string; email: string; role: Role };
 
-const STORAGE_KEY = "Intellipath.auth";
+const STORAGE_KEY = "Ewebar.auth";
 
 type AuthState = {
   user: AuthUser | null;
   loading: boolean;
-  login: (email: string, password: string, role: Role) => Promise<AuthUser>;
+  login: (email: string, password: string, role?: Role) => Promise<AuthUser>;
+  register: (name: string, email: string, password: string) => Promise<AuthUser>;
   logout: () => void;
 };
 
@@ -17,6 +19,7 @@ const AuthCtx = createContext<AuthState>({
   user: null,
   loading: true,
   login: async () => { throw new Error("AuthProvider missing"); },
+  register: async () => { throw new Error("AuthProvider missing"); },
   logout: () => {},
 });
 
@@ -37,25 +40,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   }, []);
 
-  const login = async (email: string, _password: string, role: Role) => {
-    await new Promise((r) => setTimeout(r, 350));
+  const login = async (email: string, password: string, _role?: Role) => {
+    const res = await loginUser(email, password);
     const u: AuthUser = {
-      id: role === "admin" ? "admin_1" : "u_1",
-      email,
-      name: role === "admin" ? "Admin User" : "Ada Eze",
-      role,
+      id: res.user.id,
+      email: res.user.email,
+      name: res.user.name,
+      role: res.user.role as Role,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(u));
+    localStorage.setItem("Ewebar.token", res.token);
+    setUser(u);
+    return u;
+  };
+
+  const register = async (name: string, email: string, password: string) => {
+    const res = await registerUser(name, email, password);
+    const u: AuthUser = {
+      id: res.user.id,
+      email: res.user.email,
+      name: res.user.name,
+      role: res.user.role as Role,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(u));
+    localStorage.setItem("Ewebar.token", res.token);
     setUser(u);
     return u;
   };
 
   const logout = () => {
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem("Ewebar.token");
     setUser(null);
   };
 
-  return <AuthCtx.Provider value={{ user, loading, login, logout }}>{children}</AuthCtx.Provider>;
+  return (
+    <AuthCtx.Provider value={{ user, loading, login, register, logout }}>
+      {children}
+    </AuthCtx.Provider>
+  );
 }
 
 export const useAuth = () => useContext(AuthCtx);

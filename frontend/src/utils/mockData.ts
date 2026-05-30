@@ -32,7 +32,7 @@ export const mockScholarships = [
 
 export const mockNotifications = [
   { id: "n_1", title: "New recommendation available", body: "We found 3 new program matches for you.", time: "2h ago", read: false, type: "info" },
-  { id: "n_2", title: "MTN Scholarship deadline approaching", body: "12 days left to apply.", time: "1d ago", read: false, type: "warning" },
+  { id: "n_2", title: "JAMB Registration deadline approaching", body: "12 days left to register.", time: "1d ago", read: false, type: "warning" },
   { id: "n_3", title: "Document verified", body: "Your WAEC result has been verified.", time: "3d ago", read: true, type: "success" },
   { id: "n_4", title: "Application submitted", body: "Your application to UNILAG was received.", time: "1w ago", read: true, type: "success" },
 ];
@@ -59,13 +59,13 @@ export const mockProfile = {
 };
 
 export const mockChatHistory = [
-  { role: "assistant" as const, content: "Hi Ada! I'm your AI admission assistant. Ask me about programs, scholarships, or career paths." },
+  { role: "assistant" as const, content: "Hi Ada! I'm your AI admission assistant. Ask me about programs or career paths." },
   { role: "user" as const, content: "What's the best CS school for me?" },
   { role: "assistant" as const, content: "Based on your JAMB score of 268, UNILAG (94% match) and Covenant (88%) are your strongest options. Want me to draft an application?" },
 ];
 
 export const mockAnalytics = {
-  totals: { students: 18420, universities: 184, scholarships: 312, applications: 8910 },
+  totals: { students: 18420, universities: 184, courses: 200, applications: 8910 },
   applicationsTrend: [
     { month: "Jan", value: 320 }, { month: "Feb", value: 410 }, { month: "Mar", value: 560 },
     { month: "Apr", value: 720 }, { month: "May", value: 890 }, { month: "Jun", value: 1040 },
