@@ -412,28 +412,80 @@ const rawInstitutions = [
 const programTemplates = [
   // Sciences
   { name: "Computer Science", faculty: "Sciences", duration: "4 years", cutoffMark: 240, tuition: "₦150,000/yr", requirements: ["Mathematics", "English", "Physics", "Chemistry"], careerPaths: ["Software Engineer", "Data Scientist", "System Administrator"], description: "Professional degree in software engineering, algorithms, database logic, and artificial intelligence." },
+  { name: "Cybersecurity", faculty: "Sciences", duration: "4 years", cutoffMark: 230, tuition: "₦160,000/yr", requirements: ["Mathematics", "English", "Physics", "Chemistry"], careerPaths: ["Security Analyst", "Penetration Tester", "Cryptographer"], description: "Comprehensive training in network security, digital forensics, threat intelligence, and cyber defenses." },
+  { name: "Software Engineering", faculty: "Sciences", duration: "4 years", cutoffMark: 235, tuition: "₦160,000/yr", requirements: ["Mathematics", "English", "Physics", "Chemistry"], careerPaths: ["Software Architect", "Fullstack Developer", "DevOps Engineer"], description: "Focuses on software design patterns, agile engineering, quality assurance, and enterprise scale apps." },
+  { name: "Information Technology", faculty: "Sciences", duration: "4 years", cutoffMark: 210, tuition: "₦140,000/yr", requirements: ["Mathematics", "English", "Physics", "Chemistry"], careerPaths: ["IT Consultant", "Network Engineer", "Database Manager"], description: "Applied study of systems administration, network management, client-server databases, and IT services." },
+  { name: "Data Science", faculty: "Sciences", duration: "4 years", cutoffMark: 230, tuition: "₦160,000/yr", requirements: ["Mathematics", "English", "Physics", "Economics"], careerPaths: ["Data Analyst", "AI Engineer", "Business Intelligence Specialist"], description: "Statistical machine learning, big data architectures, predictive modeling, and data visualization." },
+  { name: "Physics with Electronics", faculty: "Sciences", duration: "4 years", cutoffMark: 200, tuition: "₦130,000/yr", requirements: ["Physics", "English", "Mathematics", "Chemistry"], careerPaths: ["Hardware Engineer", "Telecomm Specialist", "Lab Researcher"], description: "Applied physics focusing on electrical circuits, signal processing, and semiconductor systems." },
   { name: "Microbiology", faculty: "Sciences", duration: "4 years", cutoffMark: 220, tuition: "₦140,000/yr", requirements: ["Biology", "English", "Chemistry", "Physics"], careerPaths: ["Lab Scientist", "Pharmacologist", "Quality Inspector"], description: "In-depth study of microscopic life, bacteria, viruses, and their clinical/industrial applications." },
   { name: "Biochemistry", faculty: "Sciences", duration: "4 years", cutoffMark: 225, tuition: "₦140,000/yr", requirements: ["Biology", "English", "Chemistry", "Physics"], careerPaths: ["Research Biochemist", "Forensics Analyst", "Food Scientist"], description: "Chemical processes related to living organisms. Bridge between biology and chemical sciences." },
+  { name: "Biotechnology", faculty: "Sciences", duration: "4 years", cutoffMark: 225, tuition: "₦145,000/yr", requirements: ["Biology", "English", "Chemistry", "Mathematics"], careerPaths: ["Biotech Researcher", "Geneticist", "Bioinformatics Specialist"], description: "Leverages biological systems and genetics to develop clinical therapies and agronomy breakthroughs." },
+  { name: "Mathematics", faculty: "Sciences", duration: "4 years", cutoffMark: 200, tuition: "₦120,000/yr", requirements: ["Mathematics", "English", "Physics", "Chemistry"], careerPaths: ["Actuary", "Cryptographer", "Quantitative Analyst"], description: "Rigorous study of pure/applied mathematics, calculus systems, abstract algebra, and numeric analysis." },
+  { name: "Statistics", faculty: "Sciences", duration: "4 years", cutoffMark: 200, tuition: "₦120,000/yr", requirements: ["Mathematics", "English", "Economics", "Physics"], careerPaths: ["Statistician", "Data Analyst", "Actuary Analyst"], description: "Probability frameworks, survey methodologies, statistical models, and quantitative planning structures." },
+  { name: "Industrial Chemistry", faculty: "Sciences", duration: "4 years", cutoffMark: 210, tuition: "₦135,000/yr", requirements: ["Chemistry", "English", "Physics", "Mathematics"], careerPaths: ["Chemical Analyst", "Production Manager", "Quality Auditor"], description: "Applies chemical transformations to industrial scales, petroleum refining, and polymer manufacturing." },
+  { name: "Geology", faculty: "Sciences", duration: "4 years", cutoffMark: 215, tuition: "₦140,000/yr", requirements: ["Physics", "English", "Chemistry", "Mathematics"], careerPaths: ["Geologist", "Seismologist", "Petroleum Geoscientist"], description: "Study of solid earth materials, mineral resources, tectonic activities, and reservoir exploration." },
 
-  // Engineering
+  // Engineering & Technology
   { name: "Mechanical Engineering", faculty: "Engineering", duration: "5 years", cutoffMark: 250, tuition: "₦160,000/yr", requirements: ["Mathematics", "English", "Physics", "Chemistry"], careerPaths: ["Mechanical Engineer", "Aviation Technician", "Robotics Engineer"], description: "Comprehensive study of fluid mechanics, thermodynamics, robotics, and machine design layouts." },
   { name: "Electrical & Electronics Engineering", faculty: "Engineering", duration: "5 years", cutoffMark: 245, tuition: "₦160,000/yr", requirements: ["Mathematics", "English", "Physics", "Chemistry"], careerPaths: ["Power Grid Manager", "Hardware Architect", "Embedded Dev"], description: "Core electrical circuits, power grid distribution, hardware integrations, and microelectronics." },
   { name: "Civil Engineering", faculty: "Engineering", duration: "5 years", cutoffMark: 240, tuition: "₦155,000/yr", requirements: ["Mathematics", "English", "Physics", "Chemistry"], careerPaths: ["Structural Engineer", "Site Inspector", "Urban Planner"], description: "Designs and constructs public infrastructures, skyscrapers, highway networks, and water reservoirs." },
+  { name: "Computer Engineering", faculty: "Engineering", duration: "5 years", cutoffMark: 240, tuition: "₦160,000/yr", requirements: ["Mathematics", "English", "Physics", "Chemistry"], careerPaths: ["Hardware Design Engineer", "Firmware Developer", "Network Architect"], description: "Integration of hardware architectures and software layers, microprocessor designs, and robotics." },
+  { name: "Chemical Engineering", faculty: "Engineering", duration: "5 years", cutoffMark: 240, tuition: "₦160,000/yr", requirements: ["Mathematics", "English", "Physics", "Chemistry"], careerPaths: ["Process Engineer", "Refinery Manager", "Safety Engineer"], description: "Applies chemical transformations on process levels, refinery piping designs, and fluid heat transfers." },
+  { name: "Petroleum Engineering", faculty: "Engineering", duration: "5 years", cutoffMark: 250, tuition: "₦170,000/yr", requirements: ["Mathematics", "English", "Physics", "Chemistry"], careerPaths: ["Drilling Engineer", "Reservoir Manager", "Petrophysicist"], description: "Hydrocarbon extraction, reservoir simulations, oil rig logistics, and dynamic well drilling models." },
+  { name: "Mechatronics Engineering", faculty: "Engineering", duration: "5 years", cutoffMark: 245, tuition: "₦165,000/yr", requirements: ["Mathematics", "English", "Physics", "Chemistry"], careerPaths: ["Robotics Architect", "Automation Specialist", "Systems Control Dev"], description: "Fuses mechanical engineering, electrical circuits, control theories, and real-time coding systems." },
+  { name: "Agricultural Engineering", faculty: "Engineering", duration: "5 years", cutoffMark: 200, tuition: "₦130,000/yr", requirements: ["Mathematics", "English", "Physics", "Agricultural Science"], careerPaths: ["Agro-Machinery Engineer", "Irrigation Expert", "Farm Automater"], description: "Designs agricultural machinery, soil conservation, large irrigation channels, and post-harvest equipment." },
+  { name: "Metallurgical & Materials Engineering", faculty: "Engineering", duration: "5 years", cutoffMark: 210, tuition: "₦140,000/yr", requirements: ["Mathematics", "English", "Physics", "Chemistry"], careerPaths: ["Materials Auditor", "Metallurgist", "Corrosion Specialist"], description: "Explores structural properties of metals, advanced polymers, composite fabrications, and alloy moldings." },
 
   // Medical Sciences
   { name: "Medicine & Surgery", faculty: "Medical Sciences", duration: "6 years", cutoffMark: 280, tuition: "₦200,000/yr", requirements: ["Biology", "English", "Chemistry", "Physics"], careerPaths: ["General Surgeon", "Medical Doctor", "Pediatrician"], description: "Premium, highly competitive medical training qualifying candidates for clinical surgery and practice." },
   { name: "Nursing Science", faculty: "Medical Sciences", duration: "5 years", cutoffMark: 250, tuition: "₦180,000/yr", requirements: ["Biology", "English", "Chemistry", "Physics"], careerPaths: ["Clinical Nurse", "Public Health Officer", "Midwife Practitioner"], description: "Comprehensive clinical care training, patient rehabilitation, hospital operations, and pediatric support." },
   { name: "Pharmacy", faculty: "Medical Sciences", duration: "5 years", cutoffMark: 255, tuition: "₦180,000/yr", requirements: ["Biology", "English", "Chemistry", "Physics"], careerPaths: ["Pharmacist", "Medical Representative", "Research Scientist"], description: "In-depth training on drug compounding, chemical composition, clinical pharmacology, and dosage safety." },
+  { name: "Medical Laboratory Science", faculty: "Medical Sciences", duration: "5 years", cutoffMark: 240, tuition: "₦160,000/yr", requirements: ["Biology", "English", "Chemistry", "Physics"], careerPaths: ["Clinical Lab Scientist", "Diagnostics Officer", "Pathologist Assistant"], description: "Equips candidates for blood testing, biological pathogen analysis, and laboratory disease screening." },
+  { name: "Physiotherapy", faculty: "Medical Sciences", duration: "5 years", cutoffMark: 245, tuition: "₦170,000/yr", requirements: ["Biology", "English", "Chemistry", "Physics"], careerPaths: ["Physiotherapist", "Sports Therapist", "Rehabilitation Lead"], description: "Physical wellness, muscle therapy, neuromuscular treatment, sports medicine, and kinetic exercises." },
+  { name: "Anatomy", faculty: "Medical Sciences", duration: "4 years", cutoffMark: 215, tuition: "₦130,000/yr", requirements: ["Biology", "English", "Chemistry", "Physics"], careerPaths: ["Anatomy Lecturer", "Biomedical Researcher", "Mortician Manager"], description: "Macro and microstructural configurations of human organs, tissues, and skeletal frameworks." },
+  { name: "Physiology", faculty: "Medical Sciences", duration: "4 years", cutoffMark: 215, tuition: "₦130,000/yr", requirements: ["Biology", "English", "Chemistry", "Physics"], careerPaths: ["Physiologist", "Sports Science Adviser", "Lab Tech"], description: "Analysis of physical organ systems functions, hormonal cycles, neural triggers, and cellular reactions." },
+
+  // Agricultural Sciences
+  { name: "Agricultural Economics", faculty: "Agricultural Sciences", duration: "5 years", cutoffMark: 200, tuition: "₦120,000/yr", requirements: ["Agricultural Science", "English", "Economics", "Mathematics"], careerPaths: ["Agribusiness Manager", "Credit Analyst", "Agro Policy Consultant"], description: "Agribusiness operations, resource allocations, price behaviors, and micro-financing frameworks." },
+  { name: "Animal Science & Production", faculty: "Agricultural Sciences", duration: "5 years", cutoffMark: 190, tuition: "₦115,000/yr", requirements: ["Biology", "English", "Agricultural Science", "Chemistry"], careerPaths: ["Livestock Manager", "Animal Breeder", "Feed Specialist"], description: "Scientific animal breeding, nutrition plans, poultry/cattle management, and animal pathology." },
+  { name: "Crop Science", faculty: "Agricultural Sciences", duration: "5 years", cutoffMark: 190, tuition: "₦115,000/yr", requirements: ["Biology", "English", "Agricultural Science", "Chemistry"], careerPaths: ["Agronomist", "Plant Protectionist", "Farm Consultant"], description: "Mastery of plant breeding, crop genetics, soil cultivation models, weed controls, and harvest safety." },
+  { name: "Soil Science", faculty: "Agricultural Sciences", duration: "5 years", cutoffMark: 190, tuition: "₦115,000/yr", requirements: ["Chemistry", "English", "Agricultural Science", "Mathematics"], careerPaths: ["Soil Conservator", "Fertilizer Consultant", "Land Surveyor"], description: "Soil fertility configurations, chemical compost analysis, degradation safety, and irrigation management." },
+  { name: "Fisheries & Aquaculture", faculty: "Agricultural Sciences", duration: "5 years", cutoffMark: 180, tuition: "₦110,000/yr", requirements: ["Biology", "English", "Agricultural Science", "Chemistry"], careerPaths: ["Hatchery Operator", "Aquaculture Specialist", "Fish Farm Inspector"], description: "Aquaculture pond configurations, scientific fish breeding, feeds, and marine environmental controls." },
+  { name: "Forestry & Wildlife Management", faculty: "Agricultural Sciences", duration: "5 years", cutoffMark: 180, tuition: "₦110,000/yr", requirements: ["Biology", "English", "Agricultural Science", "Chemistry"], careerPaths: ["Forest Ranger", "Wildlife Conservator", "Environmental Consultant"], description: "Ecological forest conservation, tree farming, wildlife protection, and wood processing systems." },
 
   // Management Sciences
   { name: "Accounting", faculty: "Management Sciences", duration: "4 years", cutoffMark: 230, tuition: "₦145,000/yr", requirements: ["Mathematics", "English", "Economics", "Government"], careerPaths: ["Chartered Accountant", "Auditor", "Tax Consultant"], description: "Enables mastery of financial analysis, ledger auditing, tax calculation systems, and corporate accounting." },
   { name: "Business Administration", faculty: "Management Sciences", duration: "4 years", cutoffMark: 220, tuition: "₦140,000/yr", requirements: ["Mathematics", "English", "Economics", "Government"], careerPaths: ["Business Consultant", "HR Manager", "Operations Lead"], description: "Corporate leadership tactics, enterprise management systems, entrepreneurship hubs, and marketing strategies." },
+  { name: "Banking & Finance", faculty: "Management Sciences", duration: "4 years", cutoffMark: 220, tuition: "₦140,000/yr", requirements: ["Mathematics", "English", "Economics", "Government"], careerPaths: ["Investment Banker", "Credit Officer", "Portfolio Manager"], description: "Study of financial markets, investment portfolios, commercial banking, and capital asset pricing." },
+  { name: "Marketing", faculty: "Management Sciences", duration: "4 years", cutoffMark: 200, tuition: "₦130,000/yr", requirements: ["Mathematics", "English", "Economics", "Commerce"], careerPaths: ["Brand Manager", "Sales Strategist", "Market Researcher"], description: "Digital brand growth strategies, customer behaviors, pricing theories, and supply chain logistics." },
+  { name: "Public Administration", faculty: "Management Sciences", duration: "4 years", cutoffMark: 210, tuition: "₦130,000/yr", requirements: ["Government", "English", "Economics", "History"], careerPaths: ["Civil Administrator", "Policy Analyst", "HR Officer"], description: "Public bureau logistics, civil service structures, administrative laws, and municipal planning." },
 
-  // Arts & Social Sciences
-  { name: "Law", faculty: "Law", duration: "5 years", cutoffMark: 260, tuition: "₦150,000/yr", requirements: ["Literature", "English", "Government", "CRK/IRK"], careerPaths: ["Defense Attorney", "Legal Consultant", "High Court Judge"], description: "Comprehensive study of jurisprudence, constitutional frameworks, criminal laws, and civil litigations." },
-  { name: "Mass Communication", faculty: "Arts & Humanities", duration: "4 years", cutoffMark: 230, tuition: "₦130,000/yr", requirements: ["Literature", "English", "Government", "History"], careerPaths: ["Journalist", "Radio Presenter", "Public Relations Expert"], description: "Study of broadcast journalism, digital print medias, corporate communications, and advertising strategies." },
+  // Law, Arts & Social Sciences
+  { name: "Law", faculty: "Law", duration: "5 years", cutoffMark: 260, tuition: "₦150,000/yr", requirements: ["Literature", "English", "Government", "History"], careerPaths: ["Defense Attorney", "Legal Consultant", "High Court Judge"], description: "Comprehensive study of jurisprudence, constitutional frameworks, criminal laws, and civil litigations." },
   { name: "Economics", faculty: "Social Sciences", duration: "4 years", cutoffMark: 225, tuition: "₦135,000/yr", requirements: ["Mathematics", "English", "Economics", "Government"], careerPaths: ["Financial Analyst", "Market Strategist", "Policy Adviser"], description: "Analysis of market frameworks, macro-economics, wealth distributions, and statistical public planning." },
-  { name: "Political Science", faculty: "Social Sciences", duration: "4 years", cutoffMark: 210, tuition: "₦130,000/yr", requirements: ["History", "English", "Government", "Economics"], careerPaths: ["Diplomat", "Public Policy Manager", "Research Adviser"], description: "Analyzes governmental institutions, political ideologies, election systems, and public policy formulation." }
+  { name: "Political Science", faculty: "Social Sciences", duration: "4 years", cutoffMark: 210, tuition: "₦130,000/yr", requirements: ["History", "English", "Government", "Economics"], careerPaths: ["Diplomat", "Public Policy Manager", "Research Adviser"], description: "Analyzes governmental institutions, political ideologies, election systems, and public policy formulation." },
+  { name: "Mass Communication", faculty: "Arts & Humanities", duration: "4 years", cutoffMark: 230, tuition: "₦130,000/yr", requirements: ["Literature", "English", "Government", "History"], careerPaths: ["Journalist", "Radio Presenter", "Public Relations Expert"], description: "Study of broadcast journalism, digital print medias, corporate communications, and advertising strategies." },
+  { name: "History & International Studies", faculty: "Arts & Humanities", duration: "4 years", cutoffMark: 210, tuition: "₦120,000/yr", requirements: ["History", "English", "Government", "Literature"], careerPaths: ["Foreign Service Officer", "Archivist", "Intelligence Analyst"], description: "Explores historical patterns, international diplomacy, treaties, and global political systems." },
+  { name: "English & Literary Studies", faculty: "Arts & Humanities", duration: "4 years", cutoffMark: 200, tuition: "₦120,000/yr", requirements: ["Literature", "English", "Government", "History"], careerPaths: ["Editor", "Content Writer", "PR Officer"], description: "Advanced syntax analysis, creative writing, classic world literature, and cultural linguistics." },
+
+  // Education
+  { name: "Primary Education Studies", faculty: "Education", duration: "4 years", cutoffMark: 180, tuition: "₦100,000/yr", requirements: ["Mathematics", "English", "Biology", "Government"], careerPaths: ["Primary School Teacher", "Child Care Specialist", "Curriculum Designer"], description: "Pedagogical methodologies for childhood growth, primary classroom setups, and foundational learning." },
+  { name: "Early Childhood Care Education", faculty: "Education", duration: "4 years", cutoffMark: 180, tuition: "₦100,000/yr", requirements: ["Mathematics", "English", "Biology", "Government"], careerPaths: ["Pre-School Educator", "Child Counselor", "Daycare Manager"], description: "Nurturing early developmental capabilities, cognitive learning frameworks, and childhood safety." },
+  { name: "Business Education", faculty: "Education", duration: "4 years", cutoffMark: 180, tuition: "₦105,000/yr", requirements: ["Mathematics", "English", "Economics", "Commerce"], careerPaths: ["Business Teacher", "Administrative Officer", "Vocational Coach"], description: "Combines pedagogical training with commercial concepts (accounting, office management, marketing)." },
+  { name: "Technical Education", faculty: "Education", duration: "4 years", cutoffMark: 180, tuition: "₦110,000/yr", requirements: ["Mathematics", "English", "Physics", "Chemistry"], careerPaths: ["Technical Instructor", "Workshop Supervisor", "Industrial Educator"], description: "Equips candidates to teach technical trades like carpentry, metalwork, mechanics, and electronics." },
+  { name: "Guidance & Counseling", faculty: "Education", duration: "4 years", cutoffMark: 180, tuition: "₦100,000/yr", requirements: ["Biology", "English", "Government", "Mathematics"], careerPaths: ["School Counselor", "Career Coach", "Rehabilitation Officer"], description: "Psychological testing, career pathing support, and student behavioral modification strategies." },
+  { name: "Education & Mathematics", faculty: "Education", duration: "4 years", cutoffMark: 180, tuition: "₦100,000/yr", requirements: ["Mathematics", "English", "Physics", "Chemistry"], careerPaths: ["Mathematics Teacher", "Curriculum Specialist", "Academic Researcher"], description: "Prepares specialized mathematics instructors with thorough pedagogy and algebra configurations." },
+  { name: "Education & English", faculty: "Education", duration: "4 years", cutoffMark: 190, tuition: "₦100,000/yr", requirements: ["Literature", "English", "Government", "History"], careerPaths: ["English Language Teacher", "Literary Critic", "Journalist"], description: "Prepares secondary school English language instructors, syntax training, and literary reviews." },
+  { name: "Education & Physics", faculty: "Education", duration: "4 years", cutoffMark: 180, tuition: "₦100,000/yr", requirements: ["Physics", "English", "Mathematics", "Chemistry"], careerPaths: ["Physics Instructor", "Lab Supervisor", "Technical Consultant"], description: "Core mechanics and electromagnetism training coupled with secondary school teaching methodology." },
+
+  // Polytechnic ND/HND Specialties
+  { name: "Science Laboratory Technology", faculty: "Polytechnic ND/HND", duration: "2 years (ND/HND)", cutoffMark: 180, tuition: "₦70,000/yr", requirements: ["Biology", "English", "Chemistry", "Physics"], careerPaths: ["Lab Technologist", "Quality Analyst", "Research Assistant"], description: "Applied clinical diagnostics, biological micro-testing, laboratory safety, and chemical auditing." },
+  { name: "Estate Management", faculty: "Polytechnic ND/HND", duration: "2 years (ND/HND)", cutoffMark: 170, tuition: "₦75,000/yr", requirements: ["Mathematics", "English", "Economics", "Geography"], careerPaths: ["Property Valuer", "Estate Agent", "Facilities Manager"], description: "Land property valuation, real estate investment calculations, building maintenance, and property laws." },
+  { name: "Quantity Surveying", faculty: "Polytechnic ND/HND", duration: "2 years (ND/HND)", cutoffMark: 170, tuition: "₦75,000/yr", requirements: ["Mathematics", "English", "Physics", "Geography"], careerPaths: ["Quantity Surveyor", "Cost Estimator", "Project Manager"], description: "Construction cost assessments, contract bill of quantities, structural material estimates, and budgeting." },
+  { name: "Architectural Technology", faculty: "Polytechnic ND/HND", duration: "2 years (ND/HND)", cutoffMark: 175, tuition: "₦80,000/yr", requirements: ["Mathematics", "English", "Physics", "Technical Drawing"], careerPaths: ["Architectural Tech", "CAD Drafter", "Construction Inspector"], description: "Visual building blueprint designs, computer-aided drafting (CAD), structural planning, and local regulations." },
+  { name: "Urban & Regional Planning", faculty: "Polytechnic ND/HND", duration: "2 years (ND/HND)", cutoffMark: 160, tuition: "₦70,000/yr", requirements: ["Mathematics", "English", "Geography", "Economics"], careerPaths: ["Town Planner", "Zoning Officer", "Cartographer"], description: "Urban zoning layouts, cartographic land usage mapping, municipal drainage and transport planning." },
+  { name: "Hospitality Management", faculty: "Polytechnic ND/HND", duration: "2 years (ND/HND)", cutoffMark: 150, tuition: "₦65,000/yr", requirements: ["English", "Mathematics", "Home Economics", "Biology"], careerPaths: ["Hotel Manager", "Catering Supervisor", "Tourism Planner"], description: "Hotel operations, high-end guest reception protocols, culinary operations, and event management." },
+  { name: "Office Technology Management", faculty: "Polytechnic ND/HND", duration: "2 years (ND/HND)", cutoffMark: 150, tuition: "₦65,000/yr", requirements: ["English", "Mathematics", "Commerce", "Government"], careerPaths: ["Executive Assistant", "Office Manager", "Secretariat Lead"], description: "Digital office administration, typing speed mastery, database filing, and communication technologies." }
 ];
 
 const seedData = async () => {
@@ -470,15 +522,79 @@ const seedData = async () => {
     let programCount = 0;
 
     for (const [instName, instDoc] of institutionMap.entries()) {
-      // Seed 4-6 programs for each institution depending on its type
       const isUni = instDoc.institutionType === "university";
       const isPoly = instDoc.institutionType === "polytechnic";
-      
-      const matchedTemplates = programTemplates.filter(tmpl => {
-        if (isUni) return true; // Universities can have all programs
-        if (isPoly) return tmpl.faculty !== "Medical Sciences" && tmpl.faculty !== "Law"; // Polytechnics exclude Med/Law
-        return tmpl.faculty === "Sciences" || tmpl.faculty === "Arts & Humanities" || tmpl.faculty === "Social Sciences"; // Colleges
-      }).slice(0, isUni ? 8 : 5);
+      const isCollege = instDoc.institutionType === "college_of_education";
+      const nameLower = instDoc.name.toLowerCase();
+
+      // Smart selection of program templates based on institution specialization
+      let matchedTemplates = [];
+
+      if (isUni) {
+        if (nameLower.includes("agriculture") || nameLower.includes("agric")) {
+          // Seeding agricultural universities
+          matchedTemplates = programTemplates.filter(t => 
+            t.faculty === "Agricultural Sciences" || 
+            t.faculty === "Sciences" || 
+            t.name === "Agricultural Engineering" ||
+            t.name === "Economics"
+          );
+        } else if (nameLower.includes("technology") || nameLower.includes("tech") || nameLower.includes("aviation") || nameLower.includes("aerospace")) {
+          // Seeding tech universities
+          matchedTemplates = programTemplates.filter(t => 
+            t.faculty === "Engineering" || 
+            t.faculty === "Sciences" || 
+            t.faculty === "Management Sciences"
+          );
+        } else if (nameLower.includes("medical") || nameLower.includes("health")) {
+          // Seeding medical universities
+          matchedTemplates = programTemplates.filter(t => 
+            t.faculty === "Medical Sciences" || 
+            t.faculty === "Sciences"
+          );
+        } else if (nameLower.includes("education")) {
+          // Seeding education universities
+          matchedTemplates = programTemplates.filter(t => 
+            t.faculty === "Education" || 
+            t.faculty === "Arts & Humanities" || 
+            t.faculty === "Social Sciences"
+          );
+        } else if (nameLower.includes("police") || nameLower.includes("defense") || nameLower.includes("defence") || nameLower.includes("army")) {
+          // Seeding military/police academies
+          matchedTemplates = programTemplates.filter(t => 
+            t.faculty === "Law" || 
+            t.faculty === "Social Sciences" || 
+            t.faculty === "Sciences" || 
+            t.faculty === "Engineering"
+          );
+        } else {
+          // General comprehensive university (UNILAG, UI, OAU, ABU, private schools like Covenant, Babcock)
+          // Universities get a massive cross-section of programs (regular schools get 32 templates)
+          matchedTemplates = programTemplates.filter(t => t.faculty !== "Polytechnic ND/HND");
+        }
+        
+        const limit = (!nameLower.includes("agriculture") && !nameLower.includes("technology") && !nameLower.includes("medical") && !nameLower.includes("education")) ? 32 : 18;
+        matchedTemplates = matchedTemplates.slice(0, limit);
+
+      } else if (isPoly) {
+        // Polytechnics get technical ND/HND specialties plus sciences and engineering
+        matchedTemplates = programTemplates.filter(t => 
+          t.faculty === "Polytechnic ND/HND" || 
+          t.faculty === "Sciences" || 
+          t.faculty === "Engineering" || 
+          t.faculty === "Management Sciences"
+        );
+        matchedTemplates = matchedTemplates.slice(0, 22);
+
+      } else if (isCollege) {
+        // Colleges of Education get pedagogy and NCE courses
+        matchedTemplates = programTemplates.filter(t => 
+          t.faculty === "Education" || 
+          t.faculty === "Arts & Humanities" || 
+          t.faculty === "Social Sciences"
+        );
+        matchedTemplates = matchedTemplates.slice(0, 18);
+      }
 
       for (const tmpl of matchedTemplates) {
         // ETL Ingest Faculty
@@ -496,7 +612,6 @@ const seedData = async () => {
         let adjustedCutoff = tmpl.cutoffMark;
         
         if (instDoc.institutionType === "university") {
-          const nameLower = instDoc.name.toLowerCase();
           const isPanAtlantic = nameLower.includes("pan-atlantic");
           const isTopUni = nameLower.includes("lagos") || 
                            nameLower.includes("ibadan") || 
@@ -524,7 +639,6 @@ const seedData = async () => {
             }
           }
         } else if (instDoc.institutionType === "polytechnic") {
-          const nameLower = instDoc.name.toLowerCase();
           if (nameLower.includes("yaba") || nameLower.includes("yabatech")) {
             adjustedCutoff = Math.max(160, tmpl.cutoffMark - 80);
           } else if (nameLower.includes("lagos state university of science") || nameLower.includes("lasustech")) {
@@ -548,7 +662,9 @@ const seedData = async () => {
           facultyId: faculty._id,
           departmentId: department._id,
           name: tmpl.name,
-          duration: isPoly ? "2 years (ND/HND)" : tmpl.duration,
+          duration: isPoly 
+            ? "2 years (ND/HND)" 
+            : (instDoc.institutionType === "college_of_education" ? "3 years (NCE)" : tmpl.duration),
           cutoffMark: adjustedCutoff,
           tuition: adjustedTuition,
           requirements: tmpl.requirements,
@@ -559,6 +675,7 @@ const seedData = async () => {
         programCount++;
       }
     }
+
     console.log(`Relationally mapped and seeded ${programCount} programs.`);
 
     // 5. Seed Scholarships
