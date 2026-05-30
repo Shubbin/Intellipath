@@ -5,15 +5,24 @@ const ThemeCtx = createContext<{ theme: Theme; toggle: () => void }>({ theme: "l
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>("light");
+  const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
     const saved = (typeof window !== "undefined" && localStorage.getItem("theme")) as Theme | null;
-    if (saved) setTheme(saved);
+    if (saved) {
+      setTheme(saved);
+    } else if (typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      setTheme("dark");
+    }
+    setMounted(true);
   }, []);
+
   useEffect(() => {
-    if (typeof document === "undefined") return;
+    if (!mounted || typeof document === "undefined") return;
     document.documentElement.classList.toggle("dark", theme === "dark");
     localStorage.setItem("theme", theme);
-  }, [theme]);
+  }, [theme, mounted]);
+
   return (
     <ThemeCtx.Provider value={{ theme, toggle: () => setTheme((t) => (t === "light" ? "dark" : "light")) }}>
       {children}
@@ -21,3 +30,4 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   );
 }
 export const useTheme = () => useContext(ThemeCtx);
+
