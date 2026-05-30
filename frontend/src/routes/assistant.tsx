@@ -39,7 +39,7 @@ function Assistant() {
     {
       id: uid(),
       role: "assistant",
-      content: `Hi ${firstName}! I'm your intelligent admission counselor. Ask me about programs, JAMB strategy, scholarships, or career paths.`,
+      content: `Hi ${firstName}! I'm your intelligent admission counselor. Ask me about programs, JAMB strategy, or career paths.`,
       ts: Date.now(),
     },
   ]);
@@ -175,11 +175,8 @@ function Assistant() {
     toast.success("Transcript exported");
   };
 
-  // Context-aware follow-up suggestions
   const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
-  const dynamicSuggestions = lastAssistant?.content.toLowerCase().includes("scholarship")
-    ? ["Tell me more about MTN scholarship", "Show eligibility requirements", "When is the deadline?"]
-    : lastAssistant?.content.toLowerCase().includes("unilag")
+  const dynamicSuggestions = lastAssistant?.content.toLowerCase().includes("unilag")
     ? ["What courses does UNILAG offer?", "Tuition fees breakdown", "Hostel options"]
     : lastAssistant?.content.toLowerCase().includes("jamb")
     ? ["What subjects should I focus on?", "Best JAMB prep resources", "What score do I need?"]

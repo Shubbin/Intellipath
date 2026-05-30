@@ -153,7 +153,7 @@ function Register() {
         <div className="relative flex h-full items-center justify-center p-12 text-primary-foreground">
           <div>
             <h2 className="font-display text-3xl font-bold leading-tight">Join 18,000+ students<br />finding their path.</h2>
-            <p className="mt-3 max-w-sm text-primary-foreground/80">Smart matching, scholarship alerts, and a 24/7 intelligent mentor. Free, always.</p>
+            <p className="mt-3 max-w-sm text-primary-foreground/80">Smart matching, real-time alerts, and a 24/7 intelligent mentor. Free, always.</p>
           </div>
         </div>
       </div>

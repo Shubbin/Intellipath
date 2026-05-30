@@ -14,7 +14,7 @@ const studentNav = [
   { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { to: "/recommendations", icon: Star, label: "Recommendations" },
   { to: "/universities", icon: GraduationCap, label: "Universities" },
-  { to: "/scholarships", icon: Wallet, label: "Scholarships" },
+  // { to: "/scholarships", icon: Wallet, label: "Scholarships" },
   { to: "/documents", icon: FolderOpen, label: "Documents" },
   { to: "/applications", icon: FileText, label: "Applications" },
   { to: "/career", icon: Compass, label: "Career" },
@@ -29,7 +29,7 @@ const adminNav = [
   { to: "/admin/universities", icon: GraduationCap, label: "Universities" },
   { to: "/admin/courses", icon: FileText, label: "Courses" },
   { to: "/admin/applications", icon: FileText, label: "Applications" },
-  { to: "/admin/scholarships", icon: Wallet, label: "Scholarships" },
+  // { to: "/admin/scholarships", icon: Wallet, label: "Scholarships" },
   { to: "/admin/analytics", icon: BarChart, label: "Analytics" },
 ];
 
